@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dayjs": "^1.11.20",
+    "jalaliday": "^3.1.1"
+  }
+}
