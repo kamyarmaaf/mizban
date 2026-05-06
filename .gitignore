@@ -1,0 +1,8 @@
+# Django settings
+settings.py
+
+# Virtual environment
+.venv/
+
+# Node dependencies
+node_modules/
