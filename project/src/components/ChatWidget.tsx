@@ -51,10 +51,10 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-40">
+    <div className="fixed bottom-20 left-6 z-40">
       {isOpen ? (
         <div className="w-96 h-[400px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-slide-up">
-          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 flex items-center justify-between">
+          <div className="bg-primary text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                 <Bot className="w-5 h-5" />
@@ -69,7 +69,7 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-light">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -79,13 +79,13 @@ export default function ChatWidget() {
               >
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    message.sender === 'ai' ? 'bg-emerald-100' : 'bg-blue-100'
+                    message.sender === 'ai' ? 'bg-primary/20' : 'bg-complementary/20'
                   }`}
                 >
                   {message.sender === 'ai' ? (
-                    <Bot className="w-4 h-4 text-emerald-600" />
+                    <Bot className="w-4 h-4 text-primary" />
                   ) : (
-                    <User className="w-4 h-4 text-blue-600" />
+                    <User className="w-4 h-4 text-complementary" />
                   )}
                 </div>
                 <div
@@ -96,13 +96,13 @@ export default function ChatWidget() {
                   <div
                     className={`rounded-xl px-3 py-2 text-sm ${
                       message.sender === 'ai'
-                        ? 'bg-white text-gray-900 border border-gray-200'
-                        : 'bg-emerald-600 text-white'
+                        ? 'bg-white text-dark border border-gray-200'
+                        : 'bg-primary text-white'
                     }`}
                   >
                     <p className="whitespace-pre-line">{message.text}</p>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1 px-2">
+                  <p className="text-xs text-dark/40 mt-1 px-2">
                     {message.timestamp.toLocaleTimeString('fa-IR', {
                       hour: '2-digit',
                       minute: '2-digit'
@@ -122,11 +122,11 @@ export default function ChatWidget() {
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="پیام..."
-                className="flex-1 px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-right text-sm"
+                className="flex-1 px-3 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-right text-sm"
               />
               <button
                 onClick={handleSendMessage}
-                className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors flex items-center justify-center"
+                className="px-4 py-2.5 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -136,7 +136,7 @@ export default function ChatWidget() {
       ) : (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all active:scale-95 flex-shrink-0"
+          className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all active:scale-95 flex-shrink-0"
         >
           <Bot className="w-6 h-6" />
         </button>

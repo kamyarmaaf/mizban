@@ -5,7 +5,6 @@ import PersianDatePicker from '../components/PersianDatePicker';
 import { Calendar } from "lucide-react";
 import { categories, provinces } from "../mockData"
 
-
 interface WriteExperiencePageProps {
   onNavigate: (page: string) => void;
 }
@@ -34,18 +33,20 @@ export default function WriteExperiencePage({ onNavigate }: WriteExperiencePageP
   const [success, setSuccess] = useState(false);
   const [selecting, setSelecting] = useState<'start'>('start');
 
-
   if (!user || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-14 h-14 text-red-500 mx-auto mb-4" />
-          <p className="text-lg font-bold">برای افزودن تجربه باید وارد شوید</p>
+      <div className="min-h-screen bg-light font-sans flex items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-soft text-center max-w-md w-full border border-dark/5">
+          <div className="w-20 h-20 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-secondary" />
+          </div>
+          <p className="text-xl font-black text-dark mb-2">نیاز به ورود</p>
+          <p className="text-dark/60 font-medium mb-8">برای افزودن تجربه جدید ابتدا باید وارد حساب کاربری خود شوید.</p>
           <button
             onClick={() => onNavigate("login")}
-            className="mt-4 px-6 py-3 bg-emerald-600 text-white rounded-xl"
+            className="w-full py-4 bg-primary text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-300"
           >
-            ورود
+            ورود به حساب کاربری
           </button>
         </div>
       </div>
@@ -127,49 +128,62 @@ export default function WriteExperiencePage({ onNavigate }: WriteExperiencePageP
     }
   };
 
+  const inputClasses = "w-full border border-dark/10 bg-light/50 p-4 rounded-2xl text-dark placeholder:text-dark/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium";
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4">
+    <div className="min-h-screen bg-light font-sans flex flex-col">
+      {/* هدر صفحه */}
+      <div className="bg-primary py-12 rounded-b-3xl shadow-soft mb-8">
+        <div className="max-w-3xl mx-auto px-4">
+          <h1 className="text-3xl md:text-4xl font-black text-white text-center mb-3">
+            افزودن تجربه جدید
+          </h1>
+          <p className="text-white/80 text-center text-sm md:text-base font-medium">
+            جزئیات تجربه خود را با مسافران به اشتراک بگذارید
+          </p>
+        </div>
+      </div>
 
-        <h1 className="text-3xl font-black text-center mb-10">
-          افزودن تجربه جدید
-        </h1>
-
+      <div className="max-w-3xl mx-auto px-4 pb-16 w-full">
         {error && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6 flex gap-2">
-            <AlertCircle className="text-red-500" />
-            <p className="text-red-700">{error}</p>
+          <div className="bg-secondary/10 border border-secondary/20 p-4 rounded-2xl mb-6 flex items-center gap-3">
+            <AlertCircle className="text-secondary w-6 h-6" />
+            <p className="text-secondary font-bold">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="bg-green-50 border border-green-200 p-4 rounded-xl mb-6">
-            تجربه با موفقیت ثبت شد
+          <div className="bg-primary/10 border border-primary/20 p-4 rounded-2xl mb-6 flex items-center gap-3">
+            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white font-bold">✓</div>
+            <p className="text-primary font-bold">تجربه با موفقیت ثبت شد. در حال انتقال...</p>
           </div>
         )}
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-lg p-8 space-y-6"
+          className="bg-white rounded-3xl shadow-soft border border-dark/5 p-6 md:p-8 space-y-8"
         >
+          {/* اطلاعات پایه */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-dark flex items-center gap-2 mb-6">
+              <span className="w-2 h-6 bg-primary rounded-full"></span>
+              اطلاعات پایه
+            </h2>
 
-          {/* title */}
-          <input
-            type="text"
-            placeholder="عنوان تجربه"
-            value={formData.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            className="w-full border p-3 rounded-xl"
-          />
+            <input
+              type="text"
+              placeholder="عنوان تجربه"
+              value={formData.title}
+              onChange={(e) => handleChange("title", e.target.value)}
+              className={inputClasses}
+            />
 
-          {/* category */}
-          <select
+            <select
               value={formData.category}
               onChange={(e) => handleChange("category", e.target.value)}
-              className="w-full border rounded-xl px-4 py-3"
+              className={inputClasses}
             >
               <option value="">انتخاب دسته‌بندی</option>
-
               {categories
                 .filter((c) => c !== "همه دسته‌ها")
                 .map((category) => (
@@ -179,115 +193,121 @@ export default function WriteExperiencePage({ onNavigate }: WriteExperiencePageP
                 ))}
             </select>
 
-          {/* description */}
-          <textarea
-            placeholder="توضیحات تجربه"
-            rows={5}
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            className="w-full border p-3 rounded-xl"
-          />
-
-          {/* location */}
-          <div className="grid grid-cols-2 gap-4">
-            <select
-              value={formData.province}
-              onChange={(e) => handleChange("province", e.target.value)}
-              className="w-full border rounded-xl px-4 py-3"
-            >
-              <option value="">انتخاب استان</option>
-
-              {provinces.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              placeholder="شهر"
-              value={formData.city}
-              onChange={(e) => handleChange("city", e.target.value)}
-              className="border p-3 rounded-xl"
+            <textarea
+              placeholder="توضیحات کامل تجربه..."
+              rows={5}
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              className={`${inputClasses} resize-none`}
             />
           </div>
 
-          <input
-            type="text"
-            placeholder="آدرس دقیق"
-            value={formData.address}
-            onChange={(e) => handleChange("address", e.target.value)}
-            className="w-full border p-3 rounded-xl"
-          />
+          {/* موقعیت مکانی */}
+          <div className="space-y-4 pt-4 border-t border-dark/5">
+            <h2 className="text-xl font-black text-dark flex items-center gap-2 mb-6">
+              <span className="w-2 h-6 bg-secondary rounded-full"></span>
+              موقعیت مکانی
+            </h2>
 
-          {/* details */}
-          <div className="grid grid-cols-3 gap-4">
-            <input
-              type="number"
-              placeholder="قیمت (تومان)"
-              value={formData.price}
-              onChange={(e) => handleChange("price", e.target.value)}
-              className="border p-3 rounded-xl"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                value={formData.province}
+                onChange={(e) => handleChange("province", e.target.value)}
+                className={inputClasses}
+              >
+                <option value="">انتخاب استان</option>
+                {provinces.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
 
-            <input
-              type="number"
-              placeholder="ظرفیت"
-              value={formData.capacity}
-              onChange={(e) => handleChange("capacity", e.target.value)}
-              className="border p-3 rounded-xl"
-            />
-
+              <input
+                type="text"
+                placeholder="شهر"
+                value={formData.city}
+                onChange={(e) => handleChange("city", e.target.value)}
+                className={inputClasses}
+              />
+            </div>
 
             <input
               type="text"
-              placeholder="مثلا 3 ساعت"
-              value={formData.duration}
-              onChange={(e) => handleChange("duration", e.target.value)}
-              className="border p-3 rounded-xl"
+              placeholder="آدرس دقیق برگزاری تجربه"
+              value={formData.address}
+              onChange={(e) => handleChange("address", e.target.value)}
+              className={inputClasses}
             />
           </div>
-          <div>
-          <hr/>
-          <br/>
-  <label className="font-bold block mb-3">زمان‌بندی تجربه</label>
 
-  <div className="grid grid-cols-2 gap-4">
+          {/* جزئیات و زمان‌بندی */}
+          <div className="space-y-4 pt-4 border-t border-dark/5">
+            <h2 className="text-xl font-black text-dark flex items-center gap-2 mb-6">
+              <span className="w-2 h-6 bg-complementary rounded-full"></span>
+              جزئیات و زمان‌بندی
+            </h2>
 
-    <div>
-      <p className="mb-1 text-gray-600">تاریخ برگزاری</p>
-      <PersianDatePicker
-          value={formData.date}
-          onChange={(date:string)=>handleChange("date",date)}
-        />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="number"
+                placeholder="قیمت (تومان)"
+                value={formData.price}
+                onChange={(e) => handleChange("price", e.target.value)}
+                className={inputClasses}
+              />
 
-    </div>
+              <input
+                type="number"
+                placeholder="ظرفیت (نفر)"
+                value={formData.capacity}
+                onChange={(e) => handleChange("capacity", e.target.value)}
+                className={inputClasses}
+              />
 
-    <div>
-      <p className="mb-1 text-gray-600">ساعت آغاز</p>
-      <input
-        type="time"
-        value={formData.time}
-        onChange={(e) => handleChange("time", e.target.value)}
-        className="w-full border p-3 rounded-xl"
-      />
-    </div>
+              <input
+                type="text"
+                placeholder="مدت زمان (مثلا ۳ ساعت)"
+                value={formData.duration}
+                onChange={(e) => handleChange("duration", e.target.value)}
+                className={inputClasses}
+              />
+            </div>
 
-  </div>
-</div>
-
-
-          {/* images */}
-          <div>
-            <label className="font-bold block mb-3">عکس‌ها</label>
-
-            <label className="border-2 border-dashed rounded-xl h-40 flex items-center justify-center cursor-pointer">
-              <div className="text-center">
-                <Upload className="mx-auto mb-2 text-gray-400" />
-                <p>آپلود عکس</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div>
+                <label className="block text-sm font-bold text-dark/70 mb-2">تاریخ برگزاری</label>
+                <PersianDatePicker
+                  value={formData.date}
+                  onChange={(date: string) => handleChange("date", date)}
+                />
               </div>
 
+              <div>
+                <label className="block text-sm font-bold text-dark/70 mb-2">ساعت آغاز</label>
+                <input
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => handleChange("time", e.target.value)}
+                  className={inputClasses}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* گالری تصاویر */}
+          <div className="space-y-4 pt-4 border-t border-dark/5">
+            <h2 className="text-xl font-black text-dark flex items-center gap-2 mb-6">
+              <span className="w-2 h-6 bg-primary rounded-full"></span>
+              گالری تصاویر
+            </h2>
+
+            <label className="border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors rounded-3xl h-40 flex flex-col items-center justify-center cursor-pointer">
+              <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-3">
+                <Upload className="text-primary w-6 h-6" />
+              </div>
+              <p className="font-bold text-primary">آپلود تصاویر تجربه</p>
+              <p className="text-xs text-primary/60 mt-1">فرمت‌های مجاز: JPG, PNG</p>
               <input
                 type="file"
                 multiple
@@ -296,32 +316,34 @@ export default function WriteExperiencePage({ onNavigate }: WriteExperiencePageP
               />
             </label>
 
-            <div className="grid grid-cols-3 gap-4 mt-4">
-              {previewImages.map((img, i) => (
-                <div key={i} className="relative">
-                  <img
-                    src={img}
-                    className="h-24 w-full object-cover rounded-lg"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
+            {previewImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                {previewImages.map((img, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={img}
+                      className="h-32 w-full object-cover rounded-2xl border border-dark/10"
+                      alt={`پیش‌نمایش ${i + 1}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-2 right-2 bg-secondary/90 hover:bg-secondary text-white rounded-xl p-2 opacity-0 group-hover:opacity-100 transition-all shadow-sm"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* buttons */}
-          <div className="flex gap-4 pt-4">
+          {/* دکمه‌های عملیات */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-dark/5">
             <button
               type="button"
               onClick={() => onNavigate("provider-dashboard")}
-              className="flex-1 py-3 bg-gray-200 rounded-xl"
+              className="flex-1 py-4 bg-dark/5 text-dark/70 font-bold rounded-2xl hover:bg-dark/10 transition-colors"
             >
               انصراف
             </button>
@@ -329,13 +351,16 @@ export default function WriteExperiencePage({ onNavigate }: WriteExperiencePageP
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 bg-emerald-600 text-white rounded-xl flex justify-center gap-2"
+              className="flex-[2] py-4 bg-primary text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-primary/30 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="animate-spin" />}
-              ثبت تجربه
+              {loading ? (
+                <Loader2 className="animate-spin w-6 h-6" />
+              ) : (
+                <Calendar className="w-6 h-6" />
+              )}
+              {loading ? 'در حال ثبت...' : 'ثبت تجربه جدید'}
             </button>
           </div>
-
         </form>
       </div>
     </div>

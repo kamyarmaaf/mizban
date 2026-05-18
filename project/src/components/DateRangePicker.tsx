@@ -185,13 +185,13 @@ export default function DateRangePicker({
                 onEndDateChange('');
                 setSelecting('start');
               }}
-              className="flex-1 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+              className="flex-1 px-3 py-2 bg-gray-200 text-sm text-gray-600 hover:bg-gray-300 rounded-lg transition-colors font-medium"
             >
               پاک کن
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="flex-1 px-3 py-2 text-sm bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium"
+              className="flex-1 px-3 py-2 text-sm bg-primary text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium"
             >
               تایید
             </button>

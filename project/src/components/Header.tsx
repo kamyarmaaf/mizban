@@ -1,4 +1,4 @@
-import { Menu, X, User, Home, ChevronDown, LogOut, Heart, Info } from 'lucide-react';
+import { User, ChevronDown, LogOut, Heart, Home, Search, Calendar } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import logoImg from '../assets/images/logo.png';
@@ -9,7 +9,6 @@ interface HeaderProps {
 }
 
 export default function Header({ currentPage, onNavigate }: HeaderProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, profile, signOut } = useAuth();
@@ -35,14 +34,12 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
         { label: 'داشبورد مدیریت', page: 'admin-dashboard' },
         { label: 'پروفایل من', page: 'profile' }
       ];
-    }
-    else if (userRole === 'mizban') {
+    } else if (userRole === 'mizban') {
       return [
         { label: 'داشبورد میزبان', page: 'provider-dashboard' },
         { label: 'پروفایل من', page: 'profile' }
       ];
-    }
-    else {
+    } else {
       return [
         { label: 'رزروهای من', page: 'tourist-dashboard' },
         { label: 'پروفایل من', page: 'profile' }
@@ -51,286 +48,108 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
   };
 
   return (
-    <header className="glass-card sticky top-0 z-50 border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
-                    <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('home')}>
-            {/* عکس لوگوی شما */}
-            <img
-              src={logoImg}
-              alt="لوگو میزبان"
-              className="w-14 h-11 object-contain group-hover:scale-110 transition-transform"
-            />
-            {/* اگر می‌خواهید متن "میزبان" کنار لوگو بماند، این خط را نگه دارید. در غیر این صورت آن را پاک کنید */}
-            <span className="text-2xl font-black bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">میزبان</span>
-          </div>
+    <>
+      {/* هدر اصلی (بالای صفحه) */}
+      <header className="glass-card sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 md:h-20">
 
+            {/* لوگو - در موبایل و دسکتاپ */}
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('home')}>
+              <img
+                src={logoImg}
+                alt="لوگو میزبان"
+                className="w-12 h-10 md:w-14 md:h-14 object-contain group-hover:scale-110 transition-transform"
+              />
+              <span className="text-xl md:text-2xl font-black text-primary">میزبان</span>
+            </div>
 
-          <nav className="hidden md:flex items-center gap-2">
-            <button
-              onClick={() => onNavigate('home')}
-              className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${
-                currentPage === 'home'
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              خانه
-            </button>
-            <button
-              onClick={() => onNavigate('experiences')}
-              className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${
-                currentPage === 'experiences'
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              تجربه‌ها
-            </button>
-            <button
-              onClick={() => onNavigate('articles')}
-              className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${
-                currentPage === 'articles' || currentPage === 'write-article' || currentPage === 'article-detail'
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              بلاگ
-            </button>
-            <button
-              onClick={() => onNavigate('travel-stories')}
-              className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${
-                currentPage === 'travel-stories' || currentPage === 'write-story'
-                  ? 'bg-orange-50 text-orange-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              داستان‌ها
-            </button>
-            {/* اضافه شدن دکمه درباره ما برای دسکتاپ */}
-            <button
-              onClick={() => onNavigate('about')}
-              className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${
-                currentPage === 'about'
-                  ? 'bg-teal-50 text-teal-600'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              درباره ما
-            </button>
-          </nav>
+            {/* منوی اصلی - فقط دسکتاپ (md:flex) */}
+            <nav className="hidden md:flex items-center gap-2">
+              <button onClick={() => onNavigate('home')} className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${currentPage === 'home' ? 'bg-primary/10 text-primary' : 'text-dark/80 hover:bg-light hover:text-primary'}`}>خانه</button>
+              <button onClick={() => onNavigate('experiences')} className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${currentPage === 'experiences' ? 'bg-primary/10 text-primary' : 'text-dark/80 hover:bg-light hover:text-primary'}`}>تجربه‌ها</button>
+              <button onClick={() => onNavigate('articles')} className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${currentPage === 'articles' || currentPage === 'write-article' || currentPage === 'article-detail' ? 'bg-primary/10 text-primary' : 'text-dark/80 hover:bg-light hover:text-primary'}`}>بلاگ</button>
+              <button onClick={() => onNavigate('travel-stories')} className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${currentPage === 'travel-stories' || currentPage === 'write-story' ? 'bg-primary/10 text-primary' : 'text-dark/80 hover:bg-light hover:text-primary'}`}>داستان‌ها</button>
+              <button onClick={() => onNavigate('about')} className={`px-5 py-2.5 text-sm font-bold transition-all rounded-xl ${currentPage === 'about' ? 'bg-primary/10 text-primary' : 'text-dark/80 hover:bg-light hover:text-primary'}`}>درباره ما</button>
+            </nav>
 
-          <div className="hidden md:flex items-center gap-3">
-            {/* دکمه علاقه‌مندی‌ها برای دسکتاپ */}
-            <button
-              onClick={() => onNavigate('favorites')}
-              className={`p-2.5 rounded-xl transition-all flex items-center justify-center ${
-                currentPage === 'favorites'
-                  ? 'bg-rose-50 text-rose-600'
-                  : 'text-gray-500 hover:bg-rose-50 hover:text-rose-500'
-              }`}
-              title="علاقه‌مندی‌ها"
-            >
-              <Heart className={`w-5 h-5 ${currentPage === 'favorites' ? 'fill-rose-600' : ''}`} />
-            </button>
+            {/* بخش کاربری - فقط دسکتاپ (md:flex) */}
+            <div className="hidden md:flex items-center gap-3">
+              <button
+                onClick={() => onNavigate('favorites')}
+                className={`p-2.5 rounded-xl transition-all flex items-center justify-center ${currentPage === 'favorites' ? 'bg-complementary/10 text-complementary' : 'text-dark/60 hover:bg-complementary/10 hover:text-complementary'}`}
+                title="علاقه‌مندی‌ها"
+              >
+                <Heart className={`w-5 h-5 transition-colors ${currentPage === 'favorites' ? 'fill-complementary text-complementary' : ''}`} />
+              </button>
 
-            {!isLoggedIn ? (
-              <>
-                <button
-                  onClick={() => onNavigate('provider-signup')}
-                  className="px-5 py-2 bg-white text-emerald-600 border-2 border-emerald-500 rounded-xl text-xs font-bold hover:bg-emerald-50 transition-all hover:shadow-lg hover:scale-105 active:scale-95"
-                >
-                  میزبان شو
-                </button>
-                <div className="flex flex-col items-center gap-1">
-                  <button
-                    onClick={() => onNavigate('login')}
-                    className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl text-xs font-bold hover:from-emerald-600 hover:to-teal-600 transition-all hover:shadow-lg hover:scale-105 active:scale-95"
-                  >
-                    ورود/ثبت نام
+              {!isLoggedIn ? (
+                <>
+                  <button onClick={() => onNavigate('provider-signup')} className="px-5 py-2.5 bg-white text-primary border-2 border-primary rounded-xl text-sm font-bold hover:bg-primary/5 transition-all hover:shadow-lg hover:scale-105 active:scale-95">میزبان شو</button>
+                  <button onClick={() => onNavigate('login')} className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-lg hover:scale-105 active:scale-95 shadow-md shadow-primary/30">ورود/ثبت نام</button>
+                </>
+              ) : (
+                <div className="relative" ref={userMenuRef}>
+                  <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-light transition-colors font-bold text-dark/80">
+                    <User className="w-4 h-4" />
+                    {userName}
+                    <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
+
+                  {userMenuOpen && (
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-luxury-lg border border-gray-100 overflow-hidden animate-slide-up">
+                      <div className="p-4 border-b border-gray-100 bg-light/50">
+                        <p className="text-xs text-dark/60 mb-1">خوش‌آمدید</p>
+                        <p className="font-bold text-dark">{userName}</p>
+                      </div>
+                      <div className="py-2">
+                        {getMenuItems().map((item) => (
+                          <button key={item.page} onClick={() => { onNavigate(item.page); setUserMenuOpen(false); }} className="w-full text-right px-4 py-3 text-sm font-bold text-dark/80 hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-2">
+                            <span>{item.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={() => { signOut(); setUserMenuOpen(false); }} className="w-full text-right px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors border-t border-gray-100 flex items-center gap-2">
+                        <LogOut className="w-4 h-4" />
+                        <span>خروج</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </>
-            ) : (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-colors font-bold text-gray-700"
-                >
-                  <User className="w-4 h-4" />
-                  {userName}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
+              )}
+            </div>
 
-                {userMenuOpen && (
-                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-slide-up">
-                    <div className="p-3 border-b border-gray-100">
-                      <p className="text-xs text-gray-500">خوش‌آمدید</p>
-                      <p className="font-bold text-gray-900">{userName}</p>
-                    </div>
-
-                    <div className="py-2">
-                      {getMenuItems().map((item) => (
-                        <button
-                          key={item.page}
-                          onClick={() => {
-                            onNavigate(item.page);
-                            setUserMenuOpen(false);
-                          }}
-                          className="w-full text-right px-4 py-3 text-sm font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors flex items-center gap-2"
-                        >
-                          <span>{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        signOut();
-                        setUserMenuOpen(false);
-                      }}
-                      className="w-full text-right px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 flex items-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>خروج</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
-
-          <button
-            className="md:hidden p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
+      </header>
 
-        {mobileMenuOpen && (
-          <nav className="md:hidden pb-5 flex flex-col gap-2 border-t border-gray-100 pt-4">
-            <button
-              onClick={() => {
-                onNavigate('home');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                currentPage === 'home' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              خانه
-            </button>
-            <button
-              onClick={() => {
-                onNavigate('experiences');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                currentPage === 'experiences' ? 'bg-emerald-50 text-emerald-600' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              تجربه‌ها
-            </button>
-            <button
-              onClick={() => {
-                onNavigate('articles');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                currentPage === 'articles' || currentPage === 'write-article' || currentPage === 'article-detail' ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              بلاگ
-            </button>
-            <button
-              onClick={() => {
-                onNavigate('travel-stories');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                currentPage === 'travel-stories' || currentPage === 'write-story' ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              داستان‌ها
-            </button>
+      {/* نوار ناوبری پایین (موبایل) - مخفی در دسکتاپ */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-t border-gray-100 rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]
+ pb-safe">
+        <div className="flex justify-between items-center px-6 py-2 pb-4">
 
-            {/* اضافه شدن دکمه درباره ما برای موبایل */}
-            <button
-              onClick={() => {
-                onNavigate('about');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
-                currentPage === 'about' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              درباره ما
-            </button>
+          <button onClick={() => onNavigate('home')} className={`flex flex-col items-center p-2 rounded-2xl transition-all ${currentPage === 'home' ? 'text-primary bg-primary/10 scale-110' : 'text-dark/40 hover:text-dark/70'}`}>
+            <Home className="w-6 h-6" />
+          </button>
 
-            {/* دکمه علاقه‌مندی‌ها برای موبایل */}
-            <button
-              onClick={() => {
-                onNavigate('favorites');
-                setMobileMenuOpen(false);
-              }}
-              className={`text-right px-4 py-3 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 ${
-                currentPage === 'favorites' ? 'bg-rose-50 text-rose-600' : 'text-gray-700 hover:bg-rose-50 hover:text-rose-600'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${currentPage === 'favorites' ? 'fill-rose-600' : ''}`} />
-              علاقه‌مندی‌ها
-            </button>
+          <button onClick={() => onNavigate('experiences')} className={`flex flex-col items-center p-2 rounded-2xl transition-all ${currentPage === 'experiences' ? 'text-primary bg-primary/10 scale-110' : 'text-dark/40 hover:text-dark/70'}`}>
+            <Search className="w-6 h-6" />
+          </button>
 
-            {!isLoggedIn ? (
-              <>
-                <button
-                  onClick={() => {
-                    onNavigate('provider-signup');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-right px-4 py-3 bg-white text-emerald-600 border-2 border-emerald-500 rounded-xl text-sm font-bold"
-                >
-                  میزبان شو
-                </button>
-                <button
-                  onClick={() => {
-                    onNavigate('login');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-right px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl text-sm font-bold"
-                >
-                  ورود/ثبت نام
-                </button>
-              </>
-            ) : (
-              <>
-                {getMenuItems().map((item) => (
-                  <button
-                    key={item.page}
-                    onClick={() => {
-                      onNavigate(item.page);
-                      setMobileMenuOpen(false);
-                    }}
-                    className="text-right px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <button
-                  onClick={() => {
-                    signOut();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-right px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50"
-                >
-                  خروج
-                </button>
-              </>
-            )}
-          </nav>
-        )}
-      </div>
-    </header>
+          <button onClick={() => onNavigate('articles')} className={`flex flex-col items-center p-2 rounded-2xl transition-all ${['articles', 'travel-stories'].includes(currentPage) ? 'text-primary bg-primary/10 scale-110' : 'text-dark/40 hover:text-dark/70'}`}>
+            <Calendar className="w-6 h-6" />
+          </button>
+
+          <button onClick={() => onNavigate('favorites')} className={`flex flex-col items-center p-2 rounded-2xl transition-all ${currentPage === 'favorites' ? 'text-complementary bg-complementary/10 scale-110' : 'text-dark/40 hover:text-dark/70'}`}>
+            <Heart className="w-6 h-6" />
+          </button>
+
+          <button onClick={() => onNavigate(isLoggedIn ? 'profile' : 'login')} className={`flex flex-col items-center p-2 rounded-2xl transition-all ${['profile', 'login', 'admin-dashboard', 'tourist-dashboard', 'provider-dashboard'].includes(currentPage) ? 'text-primary bg-primary/10 scale-110' : 'text-dark/40 hover:text-dark/70'}`}>
+            <User className="w-6 h-6" />
+          </button>
+
+        </div>
+      </nav>
+    </>
   );
 }

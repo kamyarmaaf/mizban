@@ -145,25 +145,28 @@ export default function Comments({ experienceId }: CommentsProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 mt-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-          <MessageSquare className="w-6 h-6 text-white" />
+    <div className="bg-white rounded-3xl shadow-soft border border-light p-8 mt-8 font-sans">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+          <MessageSquare className="w-7 h-7 text-primary" />
         </div>
         <div>
-          <h2 className="text-2xl font-black text-gray-900">نظرات و تجربیات</h2>
-          <p className="text-gray-500 text-sm">
+          <h2 className="text-2xl font-bold text-dark mb-1">نظرات و تجربیات</h2>
+          <p className="text-dark/50 text-sm font-medium">
             {comments.length} نظر ثبت شده
           </p>
         </div>
       </div>
 
       {user && profile ? (
-        <form onSubmit={handleSubmit} className="mb-8 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border-2 border-emerald-100">
-          <h3 className="font-bold text-gray-900 mb-4">نظر خود را ثبت کنید</h3>
+        <form onSubmit={handleSubmit} className="mb-10 bg-light/30 rounded-3xl p-6 md:p-8 border border-light">
+          <h3 className="text-lg font-bold text-dark mb-6 flex items-center gap-2">
+             <div className="w-1.5 h-6 bg-primary rounded-full"></div>
+             نظر خود را ثبت کنید
+          </h3>
 
-          <div className="mb-4">
-            <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
+          <div className="mb-6">
+            <label className="block text-sm font-bold text-dark/70 mb-3 text-right">
               امتیاز شما (اختیاری)
             </label>
             <StarRating
@@ -174,13 +177,13 @@ export default function Comments({ experienceId }: CommentsProps) {
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-6">
             <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="تجربه خود را با دیگران به اشتراک بگذارید..."
               rows={4}
-              className="w-full px-4 py-3 border-2 border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right resize-none transition-all"
+              className="w-full px-5 py-4 bg-white border border-light rounded-2xl shadow-sm focus:ring-2 focus:ring-primary focus:border-primary text-right resize-none outline-none transition-all text-dark placeholder:text-dark/40"
               disabled={loading}
             />
           </div>
@@ -188,49 +191,49 @@ export default function Comments({ experienceId }: CommentsProps) {
           <button
             type="submit"
             disabled={loading || !newComment.trim()}
-            className="w-full px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full md:w-auto px-8 py-3.5 bg-primary text-white rounded-2xl font-bold hover:opacity-90 hover:-translate-y-1 hover:shadow-soft transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-3"
           >
             <Send className="w-5 h-5" />
             {loading ? 'در حال ارسال...' : 'ثبت نظر'}
           </button>
         </form>
       ) : (
-        <div className="mb-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
-          <p className="text-blue-800 font-bold mb-2">برای ثبت نظر وارد شوید</p>
-          <p className="text-blue-600 text-sm">
+        <div className="mb-10 bg-light rounded-3xl p-8 border border-light text-center">
+          <p className="text-dark font-bold text-lg mb-2">برای ثبت نظر وارد شوید</p>
+          <p className="text-dark/60">
             شما باید وارد حساب کاربری خود شوید تا بتوانید نظر ثبت کنید
           </p>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {loadingComments ? (
-          <div className="text-center py-8">
-            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-500">در حال بارگذاری نظرات...</p>
+          <div className="text-center py-12">
+            <div className="w-12 h-12 border-4 border-light border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-dark/50 font-medium">در حال بارگذاری نظرات...</p>
           </div>
         ) : comments.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-2xl">
-            <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 font-bold text-lg">هنوز نظری ثبت نشده</p>
-            <p className="text-gray-400 text-sm mt-2">اولین نفری باشید که نظر می‌دهد!</p>
+          <div className="text-center py-16 bg-light/50 rounded-3xl border border-light border-dashed">
+            <MessageSquare className="w-16 h-16 text-dark/20 mx-auto mb-4" />
+            <p className="text-dark/70 font-bold text-lg">هنوز نظری ثبت نشده</p>
+            <p className="text-dark/40 text-sm mt-2 font-medium">اولین نفری باشید که نظر می‌دهد!</p>
           </div>
         ) : (
           comments.map((comment) => (
             <div
               key={comment.id}
-              className="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:border-emerald-300 transition-all"
+              className="bg-white rounded-3xl p-6 border border-light shadow-sm hover:shadow-soft transition-all duration-300"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center">
+                    <span className="text-secondary font-bold text-lg">
                       {comment.user_name.charAt(0)}
                     </span>
                   </div>
                   <div>
-                    <p className="font-bold text-gray-900">{comment.user_name}</p>
-                    <p className="text-xs text-gray-500">{formatDate(comment.created_at)}</p>
+                    <p className="font-bold text-dark text-lg">{comment.user_name}</p>
+                    <p className="text-xs font-medium text-dark/40 mt-1">{formatDate(comment.created_at)}</p>
                   </div>
                 </div>
 
@@ -240,7 +243,7 @@ export default function Comments({ experienceId }: CommentsProps) {
                       <>
                         <button
                           onClick={() => handleUpdate(comment.id)}
-                          className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+                          className="p-2.5 bg-secondary/10 text-secondary rounded-xl hover:bg-secondary hover:text-white transition-colors"
                         >
                           <Check className="w-4 h-4" />
                         </button>
@@ -250,7 +253,7 @@ export default function Comments({ experienceId }: CommentsProps) {
                             setEditText('');
                             setEditRating(0);
                           }}
-                          className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300 transition-colors"
+                          className="p-2.5 bg-light text-dark/60 rounded-xl hover:bg-dark/10 transition-colors"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -259,13 +262,13 @@ export default function Comments({ experienceId }: CommentsProps) {
                       <>
                         <button
                           onClick={() => handleEdit(comment)}
-                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                          className="p-2.5 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition-colors"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(comment.id)}
-                          className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                          className="p-2.5 bg-complementary/10 text-complementary rounded-xl hover:bg-complementary hover:text-white transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -276,15 +279,15 @@ export default function Comments({ experienceId }: CommentsProps) {
               </div>
 
               {comment.rating && editingId !== comment.id && (
-                <div className="mb-3">
+                <div className="mb-4 bg-light/30 inline-block px-3 py-1.5 rounded-xl">
                   <StarRating rating={comment.rating} size="sm" />
                 </div>
               )}
 
               {editingId === comment.id ? (
-                <div className="space-y-3">
+                <div className="space-y-4 mt-4 bg-light/30 p-4 rounded-2xl border border-light">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
+                    <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
                       امتیاز
                     </label>
                     <StarRating
@@ -298,11 +301,11 @@ export default function Comments({ experienceId }: CommentsProps) {
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right resize-none"
+                    className="w-full px-4 py-3 bg-white border border-light rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none text-right resize-none text-dark shadow-sm"
                   />
                 </div>
               ) : (
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                <p className="text-dark/70 leading-relaxed whitespace-pre-wrap text-[15px]">
                   {comment.comment_text}
                 </p>
               )}

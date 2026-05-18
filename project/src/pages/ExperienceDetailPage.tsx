@@ -298,21 +298,21 @@ export default function ExperienceDetailPage({
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-xl font-bold">در حال بارگذاری اطلاعات...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-xl font-bold text-dark">در حال بارگذاری اطلاعات...</div>;
   }
 
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500 font-bold text-xl">خطا: {error}</div>;
+    return <div className="min-h-screen flex items-center justify-center text-complementary font-bold text-xl">خطا: {error}</div>;
   }
 
   if (!experience) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-light">
         <div className="text-center">
-          <p className="text-gray-500 text-lg mb-4">تجربه پیدا نشد</p>
+          <p className="text-dark/50 text-lg mb-4">تجربه پیدا نشد</p>
           <button
             onClick={() => onNavigate("experiences")}
-            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold shadow hover:shadow-lg transition"
+            className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow hover:shadow-lg transition"
           >
             بازگشت به لیست
           </button>
@@ -322,14 +322,13 @@ export default function ExperienceDetailPage({
   }
 
   return (
-    // در موبایل پدینگ پایین (pb-24) می‌دهیم تا باکس رزرو ثابت، روی محتوا نیفتد
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-24 lg:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-light to-white pb-24 lg:pb-0">
       <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-10">
 
         {/* Back Button */}
         <button
           onClick={() => onNavigate("experiences")}
-          className="flex items-center gap-2 text-gray-600 hover:text-emerald-600 mb-4 md:mb-6 transition"
+          className="flex items-center gap-2 text-dark/60 hover:text-primary mb-4 md:mb-6 transition"
         >
           <ArrowRight className="w-5 h-5" />
           بازگشت به لیست
@@ -362,7 +361,7 @@ export default function ExperienceDetailPage({
                     <>
                       <button
                         onClick={(e) => { e.preventDefault(); prevImage(); }}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white text-gray-800 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white text-dark/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -371,7 +370,7 @@ export default function ExperienceDetailPage({
 
                       <button
                         onClick={(e) => { e.preventDefault(); nextImage(); }}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white text-gray-800 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/70 hover:bg-white text-dark/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -410,13 +409,13 @@ export default function ExperienceDetailPage({
               <Heart
                 className={`w-5 h-5 md:w-6 md:h-6 ${
                   isLiked
-                    ? "fill-red-500 text-red-500"
-                    : "text-gray-600"
+                    ? "fill-complementary text-complementary"
+                    : "text-dark/60"
                 }`}
               />
             </button>
 
-            <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-white/80 backdrop-blur-md font-bold text-gray-700 shadow-lg text-sm md:text-base">
+            <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-white/80 backdrop-blur-md font-bold text-dark/80 shadow-lg text-sm md:text-base">
               {experience.category}
             </div>
           </div>
@@ -429,20 +428,20 @@ export default function ExperienceDetailPage({
               {/* LEFT SIDE (Main) */}
               <div className="lg:col-span-2">
 
-                <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-4">
+                <h1 className="text-2xl md:text-4xl font-black text-dark mb-4">
                   {experience.title}
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-8 text-sm md:text-base text-gray-600">
-                  <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
-                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-500" />
+                <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-8 text-sm md:text-base text-dark/60">
+                  <div className="flex items-center gap-1.5 bg-light px-3 py-1.5 rounded-lg">
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-dark/50" />
                     <span>
                       {experience.region}، {experience.city}
                     </span>
                   </div>
 
                   <div
-                    className="flex items-center gap-1.5 cursor-pointer text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-all hover:bg-emerald-100 border border-emerald-100"
+                    className="flex items-center gap-1.5 cursor-pointer text-primary bg-primary/10 px-3 py-1.5 rounded-lg transition-all hover:bg-primary/20 border border-primary/20"
                     onClick={() => {
                       const hostId = experience.mizban?.id || experience.mizban_id || experience.provider_id || experience.mizban || experience.provider;
                       if (hostId) {
@@ -459,29 +458,33 @@ export default function ExperienceDetailPage({
                 </div>
 
                 {/* Info Cards (Horizontal scroll on mobile) */}
-                <div className="flex lg:grid lg:grid-cols-3 gap-3 md:gap-5 mb-8 md:mb-10 overflow-x-auto snap-x pb-3 -mx-5 px-5 lg:mx-0 lg:px-0 lg:overflow-visible [scrollbar-width:none]">
-                  <div className="shrink-0 w-[140px] md:w-auto snap-center">
+                <div className="grid grid-cols-3 gap-2 md:gap-5 mb-8 md:mb-10">
+
+                  <div className="w-full">
+
                     <DetailInfoCard
-                      icon={<Calendar className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />}
+                      icon={<Calendar className="w-5 h-5 md:w-6 md:h-6" />}
                       title="تاریخ برگزاری"
                       value={formatDate(experience.date)}
-                      color="blue"
+                      type="primary"
                     />
                   </div>
-                  <div className="shrink-0 w-[140px] md:w-auto snap-center">
+                  <div className="w-full">
+
                     <DetailInfoCard
-                      icon={<Clock className="w-5 h-5 md:w-6 md:h-6 text-amber-600" />}
+                      icon={<Clock className="w-5 h-5 md:w-6 md:h-6 " />}
                       title="ساعت شروع"
                       value={experience.time}
-                      color="amber"
+                      type="primary"
                     />
                   </div>
-                  <div className="shrink-0 w-[140px] md:w-auto snap-center">
+                  <div className="w-full">
+
                     <DetailInfoCard
-                      icon={<Timer className="w-5 h-5 md:w-6 md:h-6 text-rose-600" />}
+                      icon={<Timer className="w-5 h-5 md:w-6 md:h-6 " />}
                       title="مدت زمان"
                       value={experience.duration}
-                      color="rose"
+                      type="primary"
                     />
                   </div>
                 </div>
@@ -489,7 +492,7 @@ export default function ExperienceDetailPage({
                 {/* Rating */}
                 {ratingData.totalRatings > 0 && (
                   <div className="mb-8 pb-6 border-b border-gray-200">
-                    <div className="text-sm font-bold text-gray-700 mb-2">
+                    <div className="text-sm font-bold text-dark/80 mb-2">
                       امتیاز تجربه:
                     </div>
                     <StarRating
@@ -511,7 +514,7 @@ export default function ExperienceDetailPage({
                 </div>
 
                 {/* Description */}
-                <div className="prose prose-base md:prose-lg max-w-none leading-relaxed text-gray-700 mb-10">
+                <div className="prose prose-base md:prose-lg max-w-none leading-relaxed text-dark/80 mb-10">
                   <h2 className="text-lg md:text-xl font-black mb-3 text-right">
                     درباره این تجربه
                   </h2>
@@ -552,32 +555,29 @@ export default function ExperienceDetailPage({
       {/* Mobile Fixed Bottom Booking Bar */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 px-5 flex justify-between items-center z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
           <div className="flex flex-col">
-            <div className="text-lg font-black text-gray-900 flex items-center gap-1">
+            <div className="text-lg font-black text-dark flex items-center gap-1">
               {experience.price ? (experience.price * guests).toLocaleString("fa-IR") : "رایگان"}
-              <span className="text-sm font-normal text-gray-500">تومان</span>
+              <span className="text-sm font-normal text-dark/50">تومان</span>
             </div>
             <div className="flex items-center gap-2 mt-1">
               <button
                 onClick={() => setGuests(g => Math.max(1, g - 1))}
-                className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center font-bold text-gray-600"
+                className="w-6 h-6 rounded-md bg-light flex items-center justify-center font-bold text-dark/60"
               >-</button>
-              <span className="text-sm font-bold">{guests} نفر</span>
+              <span className="text-sm font-bold text-dark">{guests} نفر</span>
               <button
                 onClick={() => setGuests(g => g + 1)}
-                className="w-6 h-6 rounded-md bg-gray-100 flex items-center justify-center font-bold text-gray-600"
+                className="w-6 h-6 rounded-md bg-light flex items-center justify-center font-bold text-dark/60"
               >+</button>
             </div>
           </div>
           <button
             onClick={handleReserve}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg hover:shadow-xl transition-all"
+            className="px-6 py-3 rounded-xl bg-primary text-white font-bold shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all"
           >
             رزرو تجربه
           </button>
         </div>
-
-      {/* اضافه کردن فوتر (در صورت نیاز) */}
-      {/* <Footer /> */}
     </div>
   );
 }
@@ -586,18 +586,25 @@ export default function ExperienceDetailPage({
    SUB COMPONENTS
 ---------------------- */
 
-function DetailInfoCard({ icon, title, value, color }: any) {
+function DetailInfoCard({ icon, title, value, type = "primary" }: any) {
+  const styles = {
+    primary: "bg-primary/5 border-primary/20 text-primary",
+    complementary: "bg-complementary/5 border-complementary/20 text-complementary",
+  };
+
+  const currentStyle = styles[type as keyof typeof styles] || styles.primary;
+
   return (
     <div
-      className={`rounded-xl md:rounded-2xl p-4 md:p-5 border-2 bg-${color}-50 border-${color}-100 h-full flex flex-col justify-center`}
-    >
-      <div className="flex items-center gap-2 mb-1.5 md:mb-2">
-        {icon}
-        <span className={`text-xs md:text-sm font-bold text-${color}-800`}>
+  className={`rounded-xl md:rounded-2xl p-2 md:p-5 border-2 ${currentStyle} h-full flex flex-col items-center justify-center text-center`}
+>
+      <div className="flex flex-col items-center gap-1 mb-1.5 md:mb-2">
+        <div className="opacity-80">{icon}</div>
+        <span className="text-xs md:text-sm font-bold opacity-80">
           {title}
         </span>
       </div>
-      <p className={`text-sm md:text-lg font-black text-${color}-700 mt-auto`}>
+      <p className="text-sm md:text-lg font-black mt-auto">
         {value}
       </p>
     </div>
@@ -606,17 +613,17 @@ function DetailInfoCard({ icon, title, value, color }: any) {
 
 function RatingBox({ hasRated, setHasRated, userRating, handleRate }: any) {
   return (
-    <div className="bg-emerald-50 rounded-2xl md:rounded-3xl p-5 md:p-6 border-2 border-emerald-100 shadow-sm">
+    <div className="bg-primary/5 rounded-2xl md:rounded-3xl p-5 md:p-6 border-2 border-primary/20 shadow-sm">
       <div className="flex items-center gap-3 mb-3 md:mb-4">
-        <Star className="w-5 h-5 md:w-6 md:h-6 text-emerald-600" />
-        <h3 className="text-base md:text-lg font-bold text-gray-900">
+        <Star className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+        <h3 className="text-base md:text-lg font-bold text-dark">
           {hasRated ? "امتیاز شما ثبت شد!" : "این تجربه را امتیاز دهید"}
         </h3>
       </div>
 
       {!hasRated ? (
         <>
-          <p className="text-xs md:text-sm text-gray-600 mb-4">
+          <p className="text-xs md:text-sm text-dark/60 mb-4">
             نظر شما به بهبود کیفیت کمک می‌کند
           </p>
 
@@ -629,15 +636,15 @@ function RatingBox({ hasRated, setHasRated, userRating, handleRate }: any) {
         </>
       ) : (
         <div className="flex items-center gap-3 mt-2">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-600 flex items-center justify-center">
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary flex items-center justify-center">
             <span className="text-white font-bold text-base md:text-lg">{userRating}</span>
           </div>
 
           <div>
-            <p className="font-bold text-sm md:text-base text-emerald-800">متشکریم!</p>
+            <p className="font-bold text-sm md:text-base text-primary">متشکریم!</p>
             <button
               onClick={() => setHasRated(false)}
-              className="text-emerald-600 text-xs md:text-sm font-medium hover:text-emerald-700"
+              className="text-primary/80 text-xs md:text-sm font-medium hover:text-primary"
             >
               تغییر امتیاز
             </button>
@@ -662,42 +669,42 @@ function CommentsSection({
   return (
     <div className="mt-8 md:mt-12 pt-8 md:pt-10 border-t border-gray-300">
       <div className="flex items-center gap-3 mb-6 md:mb-10">
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary flex items-center justify-center">
           <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-white" />
         </div>
-        <h2 className="text-xl md:text-3xl font-black text-gray-900">
+        <h2 className="text-xl md:text-3xl font-black text-dark">
           نظرات ({comments?.length || 0})
         </h2>
       </div>
 
       {user ? (
-        <div className="bg-gray-50 rounded-2xl md:rounded-3xl p-4 md:p-6 border-2 border-gray-200 mb-8">
+        <div className="bg-light rounded-2xl md:rounded-3xl p-4 md:p-6 border-2 border-gray-200 mb-8">
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             rows={3}
             placeholder="نظر خود را بنویسید..."
-            className="w-full rounded-xl md:rounded-2xl p-3 md:p-4 border-2 border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition text-right text-sm md:text-base"
+            className="w-full rounded-xl md:rounded-2xl p-3 md:p-4 border-2 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/30 transition text-right text-sm md:text-base text-dark"
           />
 
           <div className="flex justify-end mt-3 md:mt-4">
             <button
               onClick={handleSubmitComment}
               disabled={!newComment.trim() || isSubmitting}
-              className="px-5 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold text-sm md:text-base shadow hover:shadow-lg hover:from-blue-600 transition disabled:opacity-50"
+              className="px-5 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl bg-primary text-white font-bold text-sm md:text-base shadow hover:shadow-lg hover:bg-primary/90 transition disabled:opacity-50"
             >
               ارسال نظر
             </button>
           </div>
         </div>
       ) : (
-        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl md:rounded-3xl p-5 md:p-6 text-center mb-8 md:mb-10">
-          <p className="text-yellow-800 text-sm md:text-base font-medium mb-3">
+        <div className="bg-complementary/10 border-2 border-complementary/20 rounded-2xl md:rounded-3xl p-5 md:p-6 text-center mb-8 md:mb-10">
+          <p className="text-complementary text-sm md:text-base font-medium mb-3">
             برای ثبت نظر وارد شوید
           </p>
           <button
             onClick={() => onNavigate("login")}
-            className="px-5 py-2 md:px-6 md:py-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-white font-bold text-sm md:text-base shadow hover:from-emerald-600 hover:to-teal-600 transition"
+            className="px-5 py-2 md:px-6 md:py-2 bg-primary rounded-xl text-white font-bold text-sm md:text-base shadow hover:bg-primary/90 transition"
           >
             ورود / ثبت نام
           </button>
@@ -713,13 +720,13 @@ function CommentsSection({
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary flex items-center justify-center">
                     <User className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-sm md:text-base">{c.userName}</h4>
-                    <p className="text-xs md:text-sm text-gray-500">
+                    <h4 className="font-bold text-sm md:text-base text-dark">{c.userName}</h4>
+                    <p className="text-xs md:text-sm text-dark/50">
                       {formatDate(c.createdAt)}
                     </p>
                   </div>
@@ -728,20 +735,20 @@ function CommentsSection({
                 {user && c.userId === user.id && (
                   <button
                     onClick={() => handleDeleteComment(c.id)}
-                    className="p-1.5 md:p-2 rounded-lg hover:bg-red-50 text-red-600 transition"
+                    className="p-1.5 md:p-2 rounded-lg hover:bg-complementary/10 text-complementary transition"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              <p className="text-sm md:text-base text-gray-700 leading-relaxed text-right">
+              <p className="text-sm md:text-base text-dark/80 leading-relaxed text-right">
                 {c.comment}
               </p>
             </div>
           ))
         ) : (
-          <div className="text-center p-6 md:p-10 border-2 border-dashed rounded-2xl md:rounded-3xl bg-gray-50 text-gray-500">
+          <div className="text-center p-6 md:p-10 border-2 border-dashed rounded-2xl md:rounded-3xl bg-light text-dark/50">
             <MessageSquare className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-2 opacity-40" />
             <span className="text-sm md:text-base">هنوز نظری ثبت نشده است</span>
           </div>
@@ -758,12 +765,12 @@ function StickyBookingBox({ experience, ratingData = { rating: 0, totalRatings: 
     <div className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/40 rounded-3xl p-8 sticky top-24">
       <div className="text-center mb-6">
         <div className="flex justify-center items-baseline mb-2">
-          <span className="text-4xl font-black text-gray-900">
+          <span className="text-4xl font-black text-dark">
             {experience.price ? experience.price.toLocaleString("fa-IR") : "رایگان"}
           </span>
-          <span className="text-lg text-gray-500 mr-2">تومان</span>
+          <span className="text-lg text-dark/50 mr-2">تومان</span>
         </div>
-        <p className="text-gray-500 text-sm">قیمت پایه برای هر نفر</p>
+        <p className="text-dark/50 text-sm">قیمت پایه برای هر نفر</p>
       </div>
 
       {ratingData.totalRatings > 0 && (
@@ -777,19 +784,19 @@ function StickyBookingBox({ experience, ratingData = { rating: 0, totalRatings: 
       )}
 
       {/* انتخاب تعداد نفرات */}
-      <div className="flex items-center justify-between p-4 mb-4 bg-gray-50 rounded-2xl border border-gray-200">
-        <span className="font-medium text-gray-700">تعداد نفرات</span>
+      <div className="flex items-center justify-between p-4 mb-4 bg-light rounded-2xl border border-gray-200">
+        <span className="font-medium text-dark/80">تعداد نفرات</span>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setGuests((g: number) => Math.max(1, g - 1))}
-            className="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-gray-600 hover:bg-gray-100 transition"
+            className="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-dark/60 hover:bg-gray-100 transition"
           >
             -
           </button>
-          <span className="font-bold text-lg w-4 text-center">{guests}</span>
+          <span className="font-bold text-lg w-4 text-center text-dark">{guests}</span>
           <button
             onClick={() => setGuests((g: number) => g + 1)}
-            className="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-gray-600 hover:bg-gray-100 transition"
+            className="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center font-bold text-dark/60 hover:bg-gray-100 transition"
           >
             +
           </button>
@@ -798,15 +805,15 @@ function StickyBookingBox({ experience, ratingData = { rating: 0, totalRatings: 
 
       {/* جمع کل */}
       <div className="flex items-center justify-between mb-6 px-2">
-        <span className="font-bold text-gray-800">جمع کل:</span>
-        <span className="font-black text-xl text-emerald-600">
+        <span className="font-bold text-dark/90">جمع کل:</span>
+        <span className="font-black text-xl text-primary">
           {totalPrice > 0 ? totalPrice.toLocaleString("fa-IR") + " تومان" : "رایگان"}
         </span>
       </div>
 
       <button
         onClick={onReserve}
-        className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all mb-6"
+        className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:bg-primary/90 transition-all mb-6"
       >
         تایید و ادامه
       </button>
@@ -815,10 +822,10 @@ function StickyBookingBox({ experience, ratingData = { rating: 0, totalRatings: 
         <InfoRow
           label="تاریخ"
           value={experience?.date ? new Date(experience.date).toLocaleDateString("fa-IR") : "در حال بارگذاری..."}
-          color="blue"
+          color="primary"
         />
-        <InfoRow label="ساعت" value={experience.time} color="amber" />
-        <InfoRow label="مدت زمان" value={experience.duration} color="rose" />
+        <InfoRow label="ساعت" value={experience.time} color="complementary" />
+        <InfoRow label="مدت زمان" value={experience.duration} color="primary" />
         <InfoRow label="شهر" value={experience.city} />
         <InfoRow label="میزبان" value={experience.providerName || experience.provider_name} />
       </div>
@@ -826,15 +833,13 @@ function StickyBookingBox({ experience, ratingData = { rating: 0, totalRatings: 
   );
 }
 
-
-
 function InfoRow({ label, value, color }: any) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-gray-600">{label}</span>
+      <span className="text-dark/60">{label}</span>
       <span
         className={`font-bold ${
-          color ? `text-${color}-700` : "text-gray-800"
+          color ? `text-${color}` : "text-dark/90"
         }`}
       >
         {value}

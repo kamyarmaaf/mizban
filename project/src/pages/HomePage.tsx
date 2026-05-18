@@ -175,7 +175,7 @@ export default function HomePage({ onNavigate }) {
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-500" />
           <div
-            className="absolute inset-0 opacity-30 transition duration-[1500ms] scale-105"
+            className="absolute inset-0 opacity-50 transition duration-[1500ms] scale-100"
             style={{
               backgroundImage: `url(${currentImage})`,
               backgroundSize: 'cover',

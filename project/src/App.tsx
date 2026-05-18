@@ -176,7 +176,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen" dir="rtl">
+    <div className="min-h-screen pb-24 md:pb-0" dir="rtl">
       <Header currentPage={currentPage} onNavigate={handleNavigate} />
       <ChatWidget />
 

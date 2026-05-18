@@ -80,17 +80,17 @@ export default function ExperiencesPage({ onNavigate }: any) {
 
         // استخراج شهرهای منحصربه‌فرد
         const citiesSet = new Set<string>();
-        experiencesArray.forEach(exp => {
+        experiencesArray.forEach((exp: any) => {
           if (exp.city) {
             citiesSet.add(exp.city);
           }
         });
         setAvailableCities(Array.from(citiesSet));
 
-        const formattedData = experiencesArray.map((exp) => ({
+        const formattedData = experiencesArray.map((exp: any) => ({
           ...exp,
           image:
-            exp.images?.find((img) => img.is_cover)?.image ||
+            exp.images?.find((img: any) => img.is_cover)?.image ||
             exp.images?.[0]?.image ||
             placeholder,
         }));
@@ -127,9 +127,6 @@ export default function ExperiencesPage({ onNavigate }: any) {
   // ----------------------------
   let filtered = [...experiences];
 
-  // چون city و category را به سرور می‌فرستی، بهتر است این فیلتر را فقط برای مواردی اجراکنی که ممکن است سرور ارسال نکرده باشد
-  // اگر خیالت از بک‌اند راحت است می‌توانی فیلترهای فرانت را حذف کنی
-
   if (selectedCity !== 'همه شهرها') {
     filtered = filtered.filter(e => e.city === selectedCity);
   }
@@ -155,8 +152,8 @@ export default function ExperiencesPage({ onNavigate }: any) {
   // ----------------------------
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 md:w-14 md:h-14 text-emerald-500 animate-spin mb-4" />
+      <div className="min-h-screen flex flex-col items-center justify-center bg-light">
+        <Loader2 className="w-10 h-10 md:w-14 md:h-14 text-complementary animate-spin mb-4" />
         <p className="text-gray-600 font-bold text-base md:text-lg">
           در حال بارگذاری تجربه‌ها...
         </p>
@@ -168,23 +165,23 @@ export default function ExperiencesPage({ onNavigate }: any) {
   // UI Modern Experience Page
   // ----------------------------
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-light to-white pb-16 md:pb-0">
       <main className="max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-16">
         {/* FILTER BOX */}
         <section className="glass-card rounded-2xl md:rounded-4xl shadow-sm md:shadow-luxury-lg p-5 md:p-10 mb-8 md:mb-16 border border-gray-100 md:border-white/30 bg-white/80 md:bg-white/40 backdrop-blur-2xl">
           <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-10">
-            <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 flex items-center justify-center shadow-lg md:shadow-xl">
+            <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg md:shadow-xl">
               <SlidersHorizontal className="w-5 h-5 md:w-7 md:h-7 text-white" />
             </div>
-            <h2 className="text-xl md:text-3xl font-black text-gray-900">فیلترها</h2>
+            <h2 className="text-xl md:text-3xl font-black text-dark">فیلترها</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             {/* City */}
             <div>
-              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-gray-700">شهر</label>
+              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-dark/80">شهر</label>
               <select
-                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-emerald-500 transition text-sm md:text-base outline-none"
+                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition text-sm md:text-base outline-none"
                 value={selectedCity}
                 onChange={(e) => {
                   setSelectedCity(e.target.value);
@@ -200,9 +197,9 @@ export default function ExperiencesPage({ onNavigate }: any) {
 
             {/* category */}
             <div>
-              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-gray-700">دسته‌بندی</label>
+              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-dark/80">دسته‌بندی</label>
               <select
-                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-emerald-500 transition text-sm md:text-base outline-none"
+                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition text-sm md:text-base outline-none"
                 value={selectedCategory}
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
@@ -217,9 +214,9 @@ export default function ExperiencesPage({ onNavigate }: any) {
 
             {/* sort */}
             <div>
-              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-gray-700">مرتب‌سازی</label>
+              <label className="block mb-1.5 md:mb-3 text-xs md:text-sm font-bold text-dark/80">مرتب‌سازی</label>
               <select
-                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-emerald-500 transition text-sm md:text-base outline-none"
+                className="w-full px-3 py-2.5 md:px-5 md:py-4 rounded-xl md:rounded-2xl border border-gray-200 md:border-2 bg-white shadow-sm focus:ring-2 focus:ring-primary focus:border-primary transition text-sm md:text-base outline-none"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -233,7 +230,7 @@ export default function ExperiencesPage({ onNavigate }: any) {
 
         {/* ALL EXPERIENCES */}
         <section>
-          <h2 className="text-xl md:text-3xl font-black text-gray-900 mb-6 md:mb-10 px-1 md:px-0">
+          <h2 className="text-xl md:text-3xl font-black text-dark mb-6 md:mb-10 px-1 md:px-0">
             تمام تجربه‌ها
           </h2>
 
@@ -265,7 +262,7 @@ export default function ExperiencesPage({ onNavigate }: any) {
           <button
             disabled={!prevPage}
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            className="px-4 py-2 border rounded-xl bg-white disabled:opacity-40"
+            className="px-4 py-2 border rounded-xl bg-white hover:bg-gray-50 disabled:opacity-40 transition"
           >
             صفحه قبل
           </button>
@@ -274,8 +271,8 @@ export default function ExperiencesPage({ onNavigate }: any) {
             <button
               key={p}
               onClick={() => setPage(p)}
-              className={`w-10 h-10 rounded-xl border font-bold
-              ${p === page ? "bg-emerald-600 text-white" : "bg-white"}`}
+              className={`w-10 h-10 rounded-xl border font-bold transition
+              ${p === page ? "bg-primary text-white border-primary" : "bg-white hover:bg-gray-50"}`}
             >
               {p}
             </button>
@@ -284,7 +281,7 @@ export default function ExperiencesPage({ onNavigate }: any) {
           <button
             disabled={!nextPage}
             onClick={() => setPage((p) => p + 1)}
-            className="px-4 py-2 border rounded-xl bg-white disabled:opacity-40"
+            className="px-4 py-2 border rounded-xl bg-white hover:bg-gray-50 disabled:opacity-40 transition"
           >
             صفحه بعد
           </button>

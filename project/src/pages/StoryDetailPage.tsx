@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Calendar, User, MapPin, Eye, Heart, Trash2 } from 'lucide-react';
 import Footer from '../components/Footer';
+import { useAuth } from '../contexts/AuthContext'; // اضافه شدن useAuth
 
 interface Story {
   id: string;
@@ -8,12 +9,12 @@ interface Story {
   content: string;
   location: string;
   image: string;
-  author_name: string;
-  author: number;
+  authorName: string; // استانداردسازی نام‌ها
+  authorId: number;
   views: number;
-  likes_count: number;
-  is_liked?: boolean;
-  created_at: string;
+  likes: number;
+  isLiked?: boolean;
+  createdAt: string;
 }
 
 interface StoryDetailPageProps {
@@ -22,12 +23,11 @@ interface StoryDetailPageProps {
 }
 
 export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPageProps) {
+  const { user } = useAuth(); // استفاده از کانتکست به جای localStorage
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isLiking, setIsLiking] = useState(false);
-
-  const currentUserId = localStorage.getItem('userId');
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -35,46 +35,53 @@ export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPage
       setError('');
       try {
         const token = localStorage.getItem('access_token');
-        const headers: HeadersInit = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
+        const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
 
         const response = await fetch(`http://127.0.0.1:8000/api/stories/${storyId}/`, { headers });
-
         if (!response.ok) throw new Error('خطا در دریافت اطلاعات داستان');
 
         const data = await response.json();
-        setStory(data);
+        // یکپارچه‌سازی کلیدها هنگام دریافت از API
+        setStory({
+          id: data.id,
+          title: data.title,
+          content: data.content,
+          location: data.location,
+          image: data.image,
+          authorName: data.author_name,
+          authorId: data.author,
+          views: data.views,
+          likes: data.likes_count,
+          isLiked: data.is_liked,
+          createdAt: data.created_at,
+        });
       } catch (err) {
-        setError('خطا در بارگذاری داستان');
+        setError('خطا در بارگذاری داستان یا داستان مورد نظر یافت نشد');
       } finally {
         setLoading(false);
       }
     };
-
     fetchStory();
   }, [storyId]);
 
   const handleLike = async () => {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
+    if (!user) {
       alert('برای لایک کردن باید وارد حساب کاربری شوید');
       return;
     }
+    if (!story) return;
 
     try {
       setIsLiking(true);
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`http://127.0.0.1:8000/api/stories/${storyId}/like/`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` || '' },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setStory(prev => prev ? { ...prev, is_liked: data.is_liked, likes_count: data.likes_count } : null);
+        setStory(prev => prev ? { ...prev, isLiked: data.is_liked, likes: data.likes_count } : null);
       }
     } catch (err) {
       console.error('خطا در لایک:', err);
@@ -86,13 +93,11 @@ export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPage
   const handleDelete = async () => {
     if (!window.confirm('آیا از حذف این داستان اطمینان دارید؟')) return;
 
-    const token = localStorage.getItem('access_token');
     try {
+      const token = localStorage.getItem('access_token');
       const response = await fetch(`http://127.0.0.1:8000/api/stories/${storyId}/`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` || '' },
       });
 
       if (response.ok || response.status === 204) {
@@ -115,39 +120,44 @@ export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPage
 
   const getImageUrl = (url: string) => {
     if (!url) return '';
-    if (url.startsWith('http')) return url;
-    return `http://127.0.0.1:8000${url}`;
+    return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
   };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center pt-20">
-      <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   if (error || !story) return (
-    <div className="min-h-screen flex items-center justify-center pt-20 text-red-500 font-bold">
-      {error || 'داستان پیدا نشد'}
+    <div className="min-h-screen flex flex-col items-center justify-center pt-20 text-complementary font-bold px-4 text-center">
+      <p>{error || 'داستان پیدا نشد'}</p>
+      <button
+        onClick={() => onNavigate('travel-stories')}
+        className="mt-6 px-6 py-3 bg-primary text-white rounded-full font-bold hover:bg-primary/90 transition"
+      >
+        بازگشت به داستان‌ها
+      </button>
     </div>
   );
 
-  const isAuthor = currentUserId && story.author && story.author.toString() === currentUserId;
+  const isAuthor = user && story.authorId && user.id === story.authorId;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-24">
+    <div className="min-h-screen bg-light pb-24 pt-24">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* دکمه بازگشت */}
         <button
           onClick={() => onNavigate('travel-stories')}
-          className="group flex items-center gap-2 text-gray-500 hover:text-emerald-600 mb-6 transition-all font-medium bg-white px-5 py-2.5 rounded-full shadow-sm hover:shadow w-max border border-gray-100"
+          className="group flex items-center gap-2 text-dark/60 hover:text-primary mb-6 transition-all font-medium bg-white px-5 py-2.5 rounded-full shadow-sm hover:shadow w-max border border-dark/10"
         >
           <ArrowRight className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
           <span>بازگشت به داستان‌ها</span>
         </button>
 
-        {/* عکس داستان (فقط عکس بدون متن) */}
-        <div className="w-full h-[45vh] min-h-[350px] rounded-3xl overflow-hidden shadow-lg mb-8 border-4 border-white bg-gray-100">
+        {/* عکس داستان */}
+        <div className="w-full h-[45vh] min-h-[350px] rounded-3xl overflow-hidden shadow-lg mb-8 border-4 border-white bg-dark/5">
           <img
             src={getImageUrl(story.image)}
             alt={story.title}
@@ -156,55 +166,55 @@ export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPage
         </div>
 
         {/* کادر اصلی محتوا */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-12 lg:px-16">
+        <div className="bg-white rounded-3xl shadow-sm border border-dark/10 p-8 md:p-12 lg:px-16">
 
-          {/* اطلاعات داستان (منتقل شده به زیر عکس) */}
-          <div className="mb-12 border-b border-gray-100 pb-8">
-            <div className="flex items-center gap-2 text-emerald-700 mb-4 font-medium bg-emerald-50 w-max px-4 py-2 rounded-full border border-emerald-100">
+          {/* اطلاعات داستان */}
+          <div className="mb-12 border-b border-dark/10 pb-8">
+            <div className="flex items-center gap-2 text-primary mb-4 font-medium bg-primary/10 w-max px-4 py-2 rounded-full border border-primary/20">
               <MapPin className="w-5 h-5" />
               <span>{story.location}</span>
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight text-gray-900">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight text-dark">
               {story.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-6 text-sm md:text-base text-gray-500 font-medium">
+            <div className="flex flex-wrap items-center gap-6 text-sm md:text-base text-dark/60 font-medium">
               <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-emerald-500" />
-                <span>{story.author_name}</span>
+                <User className="w-5 h-5 text-primary" />
+                <span>{story.authorName}</span>
               </div>
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden sm:block"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-dark/20 hidden sm:block"></div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-emerald-500" />
-                <span>{formatDate(story.created_at)}</span>
+                <Calendar className="w-5 h-5 text-primary" />
+                <span>{formatDate(story.createdAt)}</span>
               </div>
-              <div className="w-1.5 h-1.5 rounded-full bg-gray-300 hidden sm:block"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-dark/20 hidden sm:block"></div>
               <button
                 onClick={handleLike}
                 disabled={isLiking}
                 className={`group flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold transition-all duration-300 ${
-                  story.is_liked
-                    ? 'bg-rose-50 text-rose-600 border border-rose-200'
-                    : 'bg-white text-gray-600 hover:text-rose-500 hover:bg-rose-50 border border-gray-200 hover:border-rose-200'
+                  story.isLiked
+                    ? 'bg-complementary/10 text-complementary border border-complementary/20'
+                    : 'bg-white text-dark/70 hover:text-complementary hover:bg-complementary/10 border border-dark/20 hover:border-complementary/20'
                 }`}
               >
                 <Heart
                   className={`w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${
-                    story.is_liked ? 'fill-current text-rose-500' : 'text-gray-400 group-hover:text-rose-400'
+                    story.isLiked ? 'fill-current text-complementary' : 'text-dark/40 group-hover:text-complementary/80'
                   }`}
                 />
-                <span className="text-sm mt-0.5">{story.likes_count}</span>
+                <span className="text-sm mt-0.5">{story.likes}</span>
               </button>
               <div className="flex items-center gap-2">
-                <Eye className="w-5 h-5 text-emerald-500" />
+                <Eye className="w-5 h-5 text-primary" />
                 <span>{story.views} بازدید</span>
               </div>
             </div>
           </div>
 
           {/* متن داستان */}
-          <div className="prose prose-lg md:prose-xl max-w-none text-gray-700 leading-loose text-justify font-normal">
+          <div className="prose prose-lg md:prose-xl max-w-none text-dark/80 leading-loose text-justify font-normal">
             {story.content.split('\n').map((paragraph, index) =>
               paragraph.trim() ? <p key={index} className="mb-8">{paragraph}</p> : null
             )}
@@ -212,14 +222,16 @@ export default function StoryDetailPage({ storyId, onNavigate }: StoryDetailPage
 
           {/* دکمه حذف */}
           {isAuthor && (
-            <button
-              onClick={handleDelete}
-              className="mt-8 flex items-center gap-2 px-6 py-3 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-full font-medium transition-colors"
-              title="حذف داستان"
-            >
-              <Trash2 className="w-5 h-5" />
-              حذف داستان
-            </button>
+            <div className="mt-12 flex justify-end">
+              <button
+                onClick={handleDelete}
+                className="flex items-center gap-2 px-6 py-3 bg-complementary/10 text-complementary hover:bg-complementary hover:text-white rounded-full font-medium transition-all"
+                title="حذف داستان"
+              >
+                <Trash2 className="w-5 h-5" />
+                <span>حذف داستان</span>
+              </button>
+            </div>
           )}
 
         </div>

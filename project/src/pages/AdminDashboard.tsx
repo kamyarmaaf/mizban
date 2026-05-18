@@ -69,7 +69,7 @@ export default function AdminDashboard() {
   const EXPERIENCE_API_BASE_URL = 'http://localhost:8000/api';
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('access_token'); // مطابق بک‌اند شما کلید access است
+    const token = localStorage.getItem('access_token');
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -84,92 +84,78 @@ export default function AdminDashboard() {
     }
   }, [user, profile]);
 
+  const fetchExperienceDetail = async (id: number | string) => {
+    try {
+      const response = await fetch(`${EXPERIENCE_API_BASE_URL}/allexperiences/${id}/`, {
+        headers: getAuthHeaders(),
+      });
 
-    const fetchExperienceDetail = async (id: number | string) => {
-  try {
-    const response = await fetch(`${EXPERIENCE_API_BASE_URL}/allexperiences/${id}/`, {
-      headers: getAuthHeaders(),
-    });
+      if (!response.ok) throw new Error("error fetching experience");
 
-    if (!response.ok) throw new Error("error fetching experience");
+      const data = await response.json();
+      setExperienceDetail(data);
+      setSelectedExperience(id);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const data = await response.json();
+  const fetchAdminExperiences = async () => {
+    try {
+      const response = await fetch(`${EXPERIENCE_API_BASE_URL}/admin-api/experiences/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
 
-    setExperienceDetail(data);
-    setSelectedExperience(id);
+      const data = await response.json();
+      const resultsArray = data.results ? data.results : data;
 
-  } catch (error) {
-    console.error(error);
-  }
-};
+      const formattedData = resultsArray.map((item: any) => ({
+        id: item.id,
+        title: item.title || 'بدون عنوان',
+        description: item.description || '',
+        city: item.city || 'نامشخص',
+        category: item.category || 'نامشخص',
+        price: item.price || 0,
+        providerName: item.host_name || 'نامشخص',
+        image: item.images?.find((img: any) => img.is_cover)?.image ||
+               item.images?.[0]?.image ||
+               'https://via.placeholder.com/150',
+        createdAt: item.created_at ? new Date(item.created_at) : new Date(),
+        status: item.status || 'pending',
+      }));
 
+      setPendingExperiences(formattedData);
+    } catch (error) {
+      console.error("خطا در دریافت تجربه‌ها:", error);
+    }
+  };
 
-
-    const fetchAdminExperiences = async () => {
-  try {
-    const response = await fetch(`${EXPERIENCE_API_BASE_URL}/admin-api/experiences/`, {
-      headers: getAuthHeaders(),
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
-
-    const data = await response.json();
-    const resultsArray = data.results ? data.results : data;
-
-    const formattedData = resultsArray.map((item: any) => ({
-      id: item.id,
-      title: item.title || 'بدون عنوان',
-      description: item.description || '',
-      city: item.city || 'نامشخص',
-      category: item.category || 'نامشخص',
-      price: item.price || 0,
-      providerName: item.host_name || 'نامشخص',
-
-      // تغییر اصلی در این قسمت است:
-      image: item.images?.find((img: any) => img.is_cover)?.image ||
-             item.images?.[0]?.image ||
-             'https://via.placeholder.com/150',
-
-      createdAt: item.created_at ? new Date(item.created_at) : new Date(),
-      status: item.status || 'pending',
-    }));
-
-    setPendingExperiences(formattedData);
-  } catch (error) {
-    console.error("خطا در دریافت تجربه‌ها:", error);
-  }
-};
-
-
-
-  // ۲. تابع دریافت کامنت‌ها از بک‌اند
   const fetchAdminComments = async () => {
-  try {
-    const response = await fetch(`${EXPERIENCE_API_BASE_URL}/admin-api/comments/`, {
-      headers: getAuthHeaders(),
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
+    try {
+      const response = await fetch(`${EXPERIENCE_API_BASE_URL}/admin-api/comments/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
 
-    const data = await response.json();
+      const data = await response.json();
+      const resultsArray = data.results ? data.results : data;
 
-    // این خط را اضافه یا اصلاح کنید:
-    const resultsArray = data.results ? data.results : data;
+      const formattedData = resultsArray.map((item: any) => ({
+        id: item.id,
+        experienceTitle: item.experience_title || 'تجربه',
+        userName: item.user_name || 'کاربر',
+        comment: item.text || '',
+        createdAt: item.created_at ? new Date(item.created_at) : new Date(),
+        reported: item.reported || false
+      }));
 
-    const formattedData = resultsArray.map((item: any) => ({
-      id: item.id,
-      experienceTitle: item.experience_title || 'تجربه',
-      userName: item.user_name || 'کاربر', // کلید صحیح
-      comment: item.text || '', // کلید صحیح
-      createdAt: item.created_at ? new Date(item.created_at) : new Date(), // کلید صحیح
-      reported: item.reported || false // کلید صحیح
-    }));
+      setComments(formattedData);
+    } catch (error) {
+      console.error("خطا در دریافت نظرات:", error);
+    }
+  };
 
-    setComments(formattedData);
-  } catch (error) {
-    console.error("خطا در دریافت نظرات:", error);
-  }
-};
-
-  // ۳. آپدیت تابع تغییر وضعیت تجربه (تایید/رد)
   const handleExperienceAction = async (experienceId: string | number, action: 'approve' | 'reject') => {
     try {
       const newStatus = action === 'approve' ? 'approved' : 'rejected';
@@ -192,7 +178,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // ۴. آپدیت تابع حذف کامنت
   const handleDeleteComment = async (commentId: string | number) => {
     if (!confirm('آیا از حذف این نظر اطمینان دارید؟')) return;
 
@@ -214,8 +199,6 @@ export default function AdminDashboard() {
     }
   };
 
-
-  // دریافت کاربران و میزبان‌ها از بک‌اند
   const fetchDashboardData = async () => {
     try {
       const mizbanRes = await fetch(`${API_BASE_URL}/mizban-users/`, { headers: getAuthHeaders() });
@@ -265,37 +248,18 @@ export default function AdminDashboard() {
     }
   };
 
-  // لود کردن دیتای تستی برای بخش‌هایی که هنوز API ندارند
-  const loadMockExperiencesAndComments = () => {
-    const mockPendingExperiences: PendingExperience[] = [
-      { id: 'e1', title: 'تور شبانه در باغ ارم شیراز', description: 'یک شب رویایی در باغ تاریخی ارم', city: 'شیراز', category: 'گردشگری فرهنگی', price: 350000, providerName: 'علی کریمی', image: 'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg', createdAt: new Date('2024-01-16'), status: 'pending' },
-      { id: 'e2', title: 'کارگاه سفالگری سنتی', description: 'یاد بگیرید سفال‌های زیبا بسازید', city: 'همدان', category: 'عکاسی و هنر', price: 280000, providerName: 'زهرا محمدی', image: 'https://images.pexels.com/photos/6544376/pexels-photo-6544376.jpeg', createdAt: new Date('2024-01-19'), status: 'pending' }
-    ];
-
-    const mockComments: Comment[] = [
-      { id: 'c1', experienceTitle: 'تور غذاهای محلی شیراز', userName: 'علی محمدی', comment: 'تجربه عالی بود! واقعا از غذاهای محلی لذت بردم.', createdAt: new Date('2024-01-17'), reported: false },
-      { id: 'c2', experienceTitle: 'پیاده‌روی در طبیعت دربند', userName: 'مریم رضایی', comment: 'مسیر خیلی سخت بود و راهنما تجربه کافی نداشت.', createdAt: new Date('2024-01-18'), reported: true }
-    ];
-
-    const savedExperiences = localStorage.getItem('adminPendingExperiences');
-    const savedComments = localStorage.getItem('adminComments');
-
-    setPendingExperiences(savedExperiences ? JSON.parse(savedExperiences) : mockPendingExperiences);
-    setComments(savedComments ? JSON.parse(savedComments) : mockComments);
-  };
-
-    const handleProviderAction = async (id, action, rejectReason = '') => {
+  const handleProviderAction = async (id: any, action: any, rejectReason = '') => {
     try {
       let method = action === 'delete' ? 'DELETE' : 'PATCH';
       let bodyData = null;
-      let newStatus = 'pending'; // <--- این خط اضافه شد
+      let newStatus = 'pending';
 
       if (action === 'approve') {
         bodyData = JSON.stringify({ status: 'approved' });
-        newStatus = 'approved'; // <--- این خط اضافه شد
+        newStatus = 'approved';
       } else if (action === 'reject') {
         bodyData = JSON.stringify({ status: 'rejected', reject_reason: rejectReason });
-        newStatus = 'rejected'; // <--- این خط اضافه شد
+        newStatus = 'rejected';
       }
 
       const response = await fetch(`http://localhost:8000/api/accounts/admin/mizban-users/${id}/`, {
@@ -305,11 +269,9 @@ export default function AdminDashboard() {
       });
 
       if (response.ok) {
-        // اصلاح این خط: استفاده از id و newStatus
-        setPendingProviders(prev => prev.map(p => p.id === id ? { ...p, status: newStatus } : p));
+        setPendingProviders(prev => prev.map(p => p.id === id ? { ...p, status: newStatus as any } : p));
         alert(`میزبان با موفقیت ${action === 'approve' ? 'تایید' : 'رد'} شد!`);
       } else {
-        // برای اینکه بفهمید دقیقا چه خطایی از بک‌اند آمده است:
         console.error("Server returned status:", response.status);
         alert('خطا در سمت سرور. آیا دسترسی ادمین دارید یا API را ساخته‌اید؟');
       }
@@ -318,9 +280,6 @@ export default function AdminDashboard() {
       alert('خطا در ارتباط با سرور.');
     }
   };
-
-
-
 
   const handleUserAction = async (userId: string | number, action: 'suspend' | 'activate' | 'delete') => {
     const stringId = String(userId);
@@ -346,7 +305,6 @@ export default function AdminDashboard() {
         console.error(error);
       }
     } else {
-      // تعلیق یا فعالسازی (نیاز به API در بک‌اند)
       alert('برای تعلیق/فعال‌سازی باید API مربوطه در بک‌اند ساخته شود.');
     }
   };
@@ -355,20 +313,26 @@ export default function AdminDashboard() {
     return new Date(date).toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  // ----------------------------------------------------
+  // Unauthorised View
+  // ----------------------------------------------------
   if (!user || (!profile?.is_superuser && profile?.user_type !== 'admin' && profile?.role !== 'admin')) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-2xl shadow-red-500/10 text-center max-w-md w-full">
-          <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldAlert className="w-12 h-12 text-red-500" />
+      <div className="min-h-screen bg-light flex items-center justify-center p-4 font-sans">
+        <div className="bg-white p-8 rounded-3xl shadow-soft border border-light text-center max-w-md w-full">
+          <div className="w-24 h-24 bg-complementary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldAlert className="w-12 h-12 text-complementary" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 mb-3">دسترسی غیرمجاز</h1>
-          <p className="text-gray-600 leading-relaxed">متاسفانه شما مجوز لازم برای مشاهده پنل مدیریت را ندارید. این بخش مختص مدیران سیستم است.</p>
+          <h1 className="text-3xl font-bold text-dark mb-3">دسترسی غیرمجاز</h1>
+          <p className="text-dark/70 leading-relaxed">متاسفانه شما مجوز لازم برای مشاهده پنل مدیریت را ندارید. این بخش مختص مدیران سیستم است.</p>
         </div>
       </div>
     );
   }
 
+  // ----------------------------------------------------
+  // Derived state calculations
+  // ----------------------------------------------------
   const totalUsers = users.length;
   const activeProviders = users.filter(u => u.role === 'provider' && u.status === 'active').length;
   const pendingProvidersCount = pendingProviders.filter(p => p.status === 'pending').length;
@@ -388,16 +352,18 @@ export default function AdminDashboard() {
   });
 
   return (
+    <div className="min-h-screen bg-light pb-12 font-sans">
 
-    <div className="min-h-screen bg-slate-50 pb-12 font-sans">
-      <div className="bg-gradient-to-r from-violet-600 via-fuchsia-600 to-rose-500 pb-24 pt-12 rounded-b-[3rem] shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+      {/* Header */}
+      <div className="bg-primary pb-24 pt-12 rounded-b-[3rem] shadow-sm relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent"></div>
+        <div className="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-sm">
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">
                 داشبورد مدیریت
               </h1>
               <p className="text-white/80 font-medium text-sm md:text-base">مرکز کنترل و مدیریت جامع سیستم میزبان</p>
@@ -410,28 +376,30 @@ export default function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-20">
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
           {[
-            { title: 'کل کاربران', count: totalUsers, icon: Users, color: 'blue', desc: 'ثبت نام شده' },
-            { title: 'میزبان‌های فعال', count: activeProviders, icon: UserCheck, color: 'emerald', desc: 'تایید شده' },
-            { title: 'میزبان‌های منتظر', count: pendingProvidersCount, icon: Calendar, color: 'orange', desc: 'نیاز به بررسی' },
-            { title: 'تجربه‌های منتظر', count: pendingExperiencesCount, icon: TrendingUp, color: 'violet', desc: 'نیاز به تایید' },
-            { title: 'نظرات گزارش شده', count: reportedCommentsCount, icon: MessageSquare, color: 'rose', desc: 'نیاز به بررسی' }
+            { title: 'کل کاربران', count: totalUsers, icon: Users, colorClass: 'text-primary bg-primary/10' },
+            { title: 'میزبان‌های فعال', count: activeProviders, icon: UserCheck, colorClass: 'text-secondary bg-secondary/10' },
+            { title: 'میزبان‌های منتظر', count: pendingProvidersCount, icon: Calendar, colorClass: 'text-dark bg-dark/10' },
+            { title: 'تجربه‌های منتظر', count: pendingExperiencesCount, icon: TrendingUp, colorClass: 'text-primary bg-primary/10' },
+            { title: 'نظرات گزارش شده', count: reportedCommentsCount, icon: MessageSquare, colorClass: 'text-complementary bg-complementary/10' }
           ].map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-3xl p-5 shadow-xl shadow-gray-200/50 hover:-translate-y-1 transition-transform duration-300 border border-gray-100">
+            <div key={idx} className="bg-white rounded-3xl p-5 shadow-soft hover:-translate-y-1 transition-transform duration-300 border border-light">
               <div className="flex items-center justify-between mb-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-${stat.color}-50`}>
-                  <stat.icon className={`w-5 h-5 text-${stat.color}-500`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.colorClass.split(' ')[1]}`}>
+                  <stat.icon className={`w-5 h-5 ${stat.colorClass.split(' ')[0]}`} />
                 </div>
               </div>
-              <p className="text-3xl font-black text-gray-800 mb-1">{stat.count}</p>
-              <h3 className="text-sm font-bold text-gray-500">{stat.title}</h3>
-              <p className={`text-xs font-medium text-${stat.color}-500 mt-2`}>{stat.desc}</p>
+              <p className="text-3xl font-bold text-dark mb-1">{stat.count}</p>
+              <h3 className="text-sm font-medium text-dark/60">{stat.title}</h3>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-2 mb-8 border border-gray-100">
+        {/* Tabs */}
+        <div className="bg-white rounded-3xl shadow-soft p-2 mb-8 border border-light">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
             {[
               { id: 'overview', icon: BarChart3, label: 'خلاصه' },
@@ -443,147 +411,118 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`snap-center flex-shrink-0 px-6 py-3.5 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 ${
+                className={`snap-center flex-shrink-0 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 flex items-center gap-2 ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-md shadow-violet-500/25'
-                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-dark/60 hover:bg-light hover:text-dark'
                 }`}
               >
-                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-gray-400'}`} />
+                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-dark/50'}`} />
                 {tab.label}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Modals */}
         {selectedExperience && experienceDetail && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-    <div className="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-xl overflow-y-auto max-h-[90vh]">
-
-      <h2 className="text-2xl font-black mb-4">
-        {experienceDetail.title}
-      </h2>
-
-      <img
-        src={experienceDetail.images?.[0]?.image}
-        className="w-full h-64 object-cover rounded-2xl mb-4"
-      />
-
-      <div className="space-y-2 text-gray-700">
-
-        <p><strong>میزبان:</strong> {experienceDetail.provider_name}</p>
-
-        <p><strong>شهر:</strong> {experienceDetail.city}</p>
-
-        <p><strong>استان:</strong> {experienceDetail.province}</p>
-
-        <p><strong>قیمت:</strong> {experienceDetail.price} تومان</p>
-
-        <p><strong>ظرفیت:</strong> {experienceDetail.capacity}</p>
-
-        <p><strong>مدت:</strong> {experienceDetail.duration}</p>
-
-        <p><strong>امتیاز:</strong> ⭐ {experienceDetail.rating}</p>
-
-        <p><strong>آدرس:</strong> {experienceDetail.address}</p>
-
-        <p className="mt-4">
-          <strong>توضیحات:</strong>
-        </p>
-
-        <p className="text-gray-600 leading-relaxed">
-          {experienceDetail.description}
-        </p>
-
-      </div>
-
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={() => {
-            setSelectedExperience(null);
-            setExperienceDetail(null);
-          }}
-          className="px-4 py-2 bg-red-500 text-white rounded-xl"
-        >
-          بستن
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
-
-
+          <div className="fixed inset-0 bg-dark/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-soft overflow-y-auto max-h-[90vh]">
+              <h2 className="text-2xl font-bold text-dark mb-4">{experienceDetail.title}</h2>
+              <img
+                src={experienceDetail.images?.[0]?.image}
+                className="w-full h-64 object-cover rounded-2xl mb-4 border border-light"
+                alt="تجربه"
+              />
+              <div className="space-y-2 text-dark/80 bg-light/30 p-4 rounded-2xl">
+                <p><strong>میزبان:</strong> {experienceDetail.provider_name}</p>
+                <p><strong>شهر / استان:</strong> {experienceDetail.city} / {experienceDetail.province}</p>
+                <p><strong>قیمت:</strong> {experienceDetail.price} تومان</p>
+                <p><strong>ظرفیت:</strong> {experienceDetail.capacity}</p>
+                <p><strong>مدت:</strong> {experienceDetail.duration}</p>
+                <p><strong>امتیاز:</strong> ⭐ {experienceDetail.rating}</p>
+                <p><strong>آدرس:</strong> {experienceDetail.address}</p>
+                <p className="mt-4 border-t border-light pt-2"><strong>توضیحات:</strong></p>
+                <p className="text-dark/70 leading-relaxed text-sm">{experienceDetail.description}</p>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => { setSelectedExperience(null); setExperienceDetail(null); }}
+                  className="px-6 py-2.5 bg-dark text-white rounded-xl hover:opacity-90 transition-opacity"
+                >
+                  بستن
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {selectedProvider && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-3xl shadow-xl w-full max-w-lg">
-      <h2 className="text-2xl font-black text-gray-800 mb-4">
-        اطلاعات میزبان
-      </h2>
+          <div className="fixed inset-0 bg-dark/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-6 rounded-3xl shadow-soft w-full max-w-lg">
+              <h2 className="text-2xl font-bold text-dark mb-4">اطلاعات میزبان</h2>
+              <div className="space-y-3 text-dark/80 bg-light/30 p-4 rounded-2xl">
+                <p><strong>نام:</strong> {selectedProvider.fullName}</p>
+                <p><strong>شماره:</strong> {selectedProvider.phone}</p>
+                <p><strong>ایمیل:</strong> {selectedProvider.email || 'ندارد'}</p>
+                <p><strong>استان / شهر:</strong> {selectedProvider.province} / {selectedProvider.city}</p>
+                <p><strong>نوع میزبانی:</strong> {selectedProvider.hostingType}</p>
+                <p><strong>تاریخ عضویت:</strong> {formatDate(selectedProvider.createdAt)}</p>
+                <p><strong>وضعیت:</strong> {selectedProvider.status}</p>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setSelectedProvider(null)}
+                  className="px-6 py-2.5 bg-dark text-white rounded-xl hover:opacity-90 transition-opacity"
+                >
+                  بستن
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-      <div className="space-y-3">
-        <p><strong>نام:</strong> {selectedProvider.fullName}</p>
-        <p><strong>شماره:</strong> {selectedProvider.phone}</p>
-        <p><strong>ایمیل:</strong> {selectedProvider.email}</p>
-        <p><strong>استان:</strong> {selectedProvider.province}</p>
-        <p><strong>شهر:</strong> {selectedProvider.city}</p>
-        <p><strong>نوع میزبانی:</strong> {selectedProvider.hostingType}</p>
-        <p><strong>تاریخ عضویت:</strong> {formatDate(selectedProvider.createdAt)}</p>
-        <p><strong>وضعیت:</strong> {selectedProvider.status}</p>
-      </div>
-
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={() => setSelectedProvider(null)}
-          className="px-4 py-2 bg-red-500 text-white rounded-xl"
-        >
-          بستن
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+        {/* Tab Content */}
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6 md:p-8 border border-gray-100">
-              <h3 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
-                <div className="w-2 h-6 bg-violet-500 rounded-full"></div>
+            <div className="bg-white rounded-3xl shadow-soft p-6 md:p-8 border border-light">
+              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                <div className="w-2 h-6 bg-primary rounded-full"></div>
                 فعالیت‌های اخیر
               </h3>
               <div className="space-y-4">
                 {pendingProviders.slice(0, 3).map(provider => (
-                  <div key={provider.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-colors border border-transparent hover:border-gray-100">
-                    <div className="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <UserCheck className="w-6 h-6 text-orange-600" />
+                  <div key={provider.id} className="group flex items-center gap-4 p-4 hover:bg-light rounded-2xl transition-colors border border-transparent hover:border-light">
+                    <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <UserCheck className="w-6 h-6 text-secondary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-gray-800 truncate">{provider.fullName}</p>
-                      <p className="text-sm text-gray-500">درخواست میزبانی جدید</p>
+                      <p className="font-bold text-dark truncate">{provider.fullName}</p>
+                      <p className="text-sm text-dark/60">درخواست میزبانی جدید</p>
                     </div>
-                    <span className="text-xs font-medium text-gray-400 bg-gray-50 px-3 py-1 rounded-full whitespace-nowrap">{formatDate(provider.createdAt)}</span>
+                    <span className="text-xs font-medium text-dark/50 bg-light px-3 py-1 rounded-full whitespace-nowrap">{formatDate(provider.createdAt)}</span>
                   </div>
                 ))}
+                {pendingProviders.length === 0 && <p className="text-dark/50 text-sm">موردی یافت نشد.</p>}
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6 md:p-8 border border-gray-100">
-              <h3 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
-                <div className="w-2 h-6 bg-fuchsia-500 rounded-full"></div>
+            <div className="bg-white rounded-3xl shadow-soft p-6 md:p-8 border border-light">
+              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                <div className="w-2 h-6 bg-secondary rounded-full"></div>
                 آمار سریع
               </h3>
               <div className="space-y-8">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-bold text-gray-600">میزبان‌های تایید شده</span>
-                    <span className="text-sm font-black text-emerald-500">
+                    <span className="text-sm font-bold text-dark/70">میزبان‌های تایید شده</span>
+                    <span className="text-sm font-bold text-secondary">
                       {pendingProviders.length > 0 ? Math.round((pendingProviders.filter(p => p.status === 'approved').length / pendingProviders.length) * 100) : 0}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-light rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-1000"
+                      className="bg-secondary h-full rounded-full transition-all duration-1000"
                       style={{ width: `${pendingProviders.length > 0 ? (pendingProviders.filter(p => p.status === 'approved').length / pendingProviders.length) * 100 : 0}%` }}
                     />
                   </div>
@@ -591,14 +530,14 @@ export default function AdminDashboard() {
 
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-bold text-gray-600">تجربه‌های تایید شده</span>
-                    <span className="text-sm font-black text-violet-500">
+                    <span className="text-sm font-bold text-dark/70">تجربه‌های تایید شده</span>
+                    <span className="text-sm font-bold text-primary">
                       {pendingExperiences.length > 0 ? Math.round((pendingExperiences.filter(e => e.status === 'approved').length / pendingExperiences.length) * 100) : 0}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div className="w-full bg-light rounded-full h-3 overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-violet-400 to-fuchsia-500 h-full rounded-full transition-all duration-1000"
+                      className="bg-primary h-full rounded-full transition-all duration-1000"
                       style={{ width: `${pendingExperiences.length > 0 ? (pendingExperiences.filter(e => e.status === 'approved').length / pendingExperiences.length) * 100 : 0}%` }}
                     />
                   </div>
@@ -609,16 +548,16 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'providers' && (
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden border border-gray-100">
-            <div className="p-6 md:p-8 border-b border-gray-100 bg-gray-50/50">
+          <div className="bg-white rounded-3xl shadow-soft overflow-hidden border border-light">
+            <div className="p-6 md:p-8 border-b border-light bg-light/30">
               <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                <h2 className="text-2xl font-black text-gray-800">مدیریت میزبان‌ها</h2>
+                <h2 className="text-2xl font-bold text-dark">مدیریت میزبان‌ها</h2>
                 <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                   <div className="relative flex-1 md:w-72">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="جستجو..." className="w-full pr-12 pl-4 py-3 bg-white border-none shadow-inner rounded-2xl focus:ring-2 focus:ring-violet-400 text-right outline-none transition-all" />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
+                    <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="جستجو..." className="w-full pr-12 pl-4 py-3 bg-white border border-light shadow-sm rounded-2xl focus:ring-2 focus:ring-primary text-right outline-none transition-all" />
                   </div>
-                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="px-4 py-3 bg-white border-none shadow-inner rounded-2xl focus:ring-2 focus:ring-violet-400 text-right font-medium outline-none text-gray-600 cursor-pointer">
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as any)} className="px-4 py-3 bg-white border border-light shadow-sm rounded-2xl focus:ring-2 focus:ring-primary text-right font-medium outline-none text-dark/70 cursor-pointer">
                     <option value="all">همه وضعیت‌ها</option>
                     <option value="pending">در انتظار</option>
                     <option value="approved">تایید شده</option>
@@ -634,33 +573,37 @@ export default function AdminDashboard() {
                     <div
                       key={provider.id}
                       onClick={() => setSelectedProvider(provider)}
-                      className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                      className="bg-white border border-light rounded-3xl p-6 shadow-sm hover:shadow-soft hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                     >
                       <div className="flex items-start justify-between mb-6">
                         <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-2xl flex items-center justify-center">
-                            <UserCheck className="w-7 h-7 text-violet-600" />
+                          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center">
+                            <UserCheck className="w-7 h-7 text-primary" />
                           </div>
                           <div>
-                            <h3 className="text-lg font-black text-gray-800">{provider.fullName}</h3>
-                            <p className="text-sm text-gray-500 mt-1" dir="ltr">{provider.phone}</p>
+                            <h3 className="text-lg font-bold text-dark">{provider.fullName}</h3>
+                            <p className="text-sm text-dark/60 mt-1" dir="ltr">{provider.phone}</p>
                           </div>
                         </div>
-                        <span className={`px-3 py-1 rounded-xl text-xs font-bold ${provider.status === 'pending' ? 'bg-orange-50 text-orange-600' : provider.status === 'approved' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                        <span className={`px-3 py-1 rounded-xl text-xs font-bold ${
+                          provider.status === 'pending' ? 'bg-dark/10 text-dark' :
+                          provider.status === 'approved' ? 'bg-secondary/10 text-secondary' :
+                          'bg-complementary/10 text-complementary'
+                        }`}>
                           {provider.status === 'pending' ? 'در انتظار' : provider.status === 'approved' ? 'تایید' : 'رد'}
                         </span>
                       </div>
                       {provider.status === 'pending' && (
-                        <div className="flex gap-3 mt-4">
-                          <button onClick={() => handleProviderAction(provider.id, 'approve')} className="flex-1 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-xl font-bold transition-all flex justify-center items-center gap-2">تایید</button>
-                          <button onClick={() => handleProviderAction(provider.id, 'reject')} className="flex-1 py-2 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white rounded-xl font-bold transition-all flex justify-center items-center gap-2">رد</button>
+                        <div className="flex gap-3 mt-4" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => handleProviderAction(provider.id, 'approve')} className="flex-1 py-2.5 bg-secondary text-white hover:opacity-90 rounded-xl font-bold transition-opacity flex justify-center items-center gap-2">تایید</button>
+                          <button onClick={() => handleProviderAction(provider.id, 'reject')} className="flex-1 py-2.5 bg-complementary text-white hover:opacity-90 rounded-xl font-bold transition-opacity flex justify-center items-center gap-2">رد</button>
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full text-center py-16 bg-gray-50 rounded-3xl">
-                    <p className="text-gray-500 font-bold text-lg">موردی یافت نشد</p>
+                  <div className="col-span-full text-center py-16 bg-light/50 rounded-3xl border border-light">
+                    <p className="text-dark/60 font-bold text-lg">موردی یافت نشد</p>
                   </div>
                 )}
               </div>
@@ -669,9 +612,9 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'experiences' && (
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden border border-gray-100">
-            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-2xl font-black text-gray-800">مدیریت تجربه‌ها</h2>
+          <div className="bg-white rounded-3xl shadow-soft overflow-hidden border border-light">
+            <div className="p-6 border-b border-light bg-light/30">
+              <h2 className="text-2xl font-bold text-dark">مدیریت تجربه‌ها</h2>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -679,66 +622,84 @@ export default function AdminDashboard() {
                   <div
                       key={exp.id}
                       onClick={() => fetchExperienceDetail(exp.id)}
-                      className="flex flex-col md:flex-row gap-4 bg-white border border-gray-100 rounded-3xl p-4 shadow-sm cursor-pointer hover:shadow-xl transition"
+                      className="flex flex-col md:flex-row gap-4 bg-white border border-light rounded-3xl p-4 shadow-sm cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-all"
                     >
-
                     <img src={exp.image} alt={exp.title} className="w-full md:w-32 h-32 object-cover rounded-2xl" />
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
-                        <h3 className="font-black text-gray-800">{exp.title}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{exp.providerName} - {exp.city}</p>
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-bold text-dark line-clamp-1">{exp.title}</h3>
+                          <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
+                            exp.status === 'pending' ? 'bg-dark/10 text-dark' :
+                            exp.status === 'approved' ? 'bg-primary/80 text-complementary' :
+                            'bg-red-600 text-white'
+                          }`}>
+                            {exp.status === 'pending' ? 'در انتظار' : exp.status === 'approved' ? 'تایید شده' : 'رد شده'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-dark/60 mt-1">{exp.providerName} - {exp.city}</p>
                       </div>
                       {exp.status === 'pending' && (
-                        <div className="flex gap-2 mt-4">
-                          <button onClick={() => handleExperienceAction(exp.id, 'approve')} className="px-4 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white rounded-xl text-sm font-bold transition-all">تایید</button>
-                          <button onClick={() => handleExperienceAction(exp.id, 'reject')} className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-500 hover:text-white rounded-xl text-sm font-bold transition-all">رد</button>
+                        <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
+                          <button onClick={() => handleExperienceAction(exp.id, 'approve')} className="px-4 py-2 bg-primary text-complementary hover:opacity-90 rounded-xl text-sm font-bold transition-opacity">تایید</button>
+                          <button onClick={() => handleExperienceAction(exp.id, 'reject')} className="px-4 py-2 bg-red-600 text-white hover:opacity-90 rounded-xl text-sm font-bold transition-opacity">رد</button>
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
+                {filteredExperiences.length === 0 && (
+                  <div className="col-span-full text-center py-16 bg-light/50 rounded-3xl border border-light">
+                    <p className="text-dark/60 font-bold text-lg">موردی یافت نشد</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'users' && (
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden border border-gray-100">
-             <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-2xl font-black text-gray-800">لیست کاربران سیستم</h2>
+          <div className="bg-white rounded-3xl shadow-soft overflow-hidden border border-light">
+             <div className="p-6 border-b border-light bg-light/30">
+              <h2 className="text-2xl font-bold text-dark">لیست کاربران سیستم</h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-right border-collapse">
-                <thead className="bg-gray-50/80">
+              <table className="w-full text-right">
+                <thead className="bg-light/50 border-b border-light">
                   <tr>
-                    <th className="px-6 py-5 text-sm font-black text-gray-600">کاربر</th>
-                    <th className="px-6 py-5 text-sm font-black text-gray-600">تلفن/ایمیل</th>
-                    <th className="px-6 py-5 text-sm font-black text-gray-600">نقش</th>
-                    <th className="px-6 py-5 text-sm font-black text-gray-600">عملیات</th>
+                    <th className="px-6 py-5 text-sm font-bold text-dark/70">کاربر</th>
+                    <th className="px-6 py-5 text-sm font-bold text-dark/70">تلفن/ایمیل</th>
+                    <th className="px-6 py-5 text-sm font-bold text-dark/70">نقش</th>
+                    <th className="px-6 py-5 text-sm font-bold text-dark/70">عملیات</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-light/50">
                   {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={user.id} className="hover:bg-light/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-violet-100 rounded-full flex items-center justify-center text-violet-600 font-bold">{user.fullName.charAt(0)}</div>
-                          <span className="font-bold text-gray-800">{user.fullName}</span>
+                          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold">{user.fullName.charAt(0)}</div>
+                          <span className="font-bold text-dark">{user.fullName}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium" dir="ltr">{user.phone}</div>
+                        <div className="text-sm font-medium text-dark/80" dir="ltr">{user.phone}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">{user.role === 'provider' ? 'میزبان' : 'گردشگر'}</span>
+                        <span className="px-3 py-1 bg-light text-dark/70 rounded-lg text-xs font-bold">{user.role === 'provider' ? 'میزبان' : 'گردشگر'}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <button onClick={() => handleUserAction(user.id, 'delete')} className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors">
+                        <button onClick={() => handleUserAction(user.id, 'delete')} className="p-2 bg-complementary/10 text-complementary rounded-xl hover:bg-complementary hover:text-white transition-colors">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
                   ))}
+                  {users.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-10 text-dark/50">کاربری یافت نشد</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -746,28 +707,32 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === 'comments' && (
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 overflow-hidden border border-gray-100">
-             <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-2xl font-black text-gray-800">مدیریت نظرات</h2>
+          <div className="bg-white rounded-3xl shadow-soft overflow-hidden border border-light">
+             <div className="p-6 border-b border-light bg-light/30">
+              <h2 className="text-2xl font-bold text-dark">مدیریت نظرات</h2>
             </div>
             <div className="p-6">
               <div className="space-y-4">
                 {comments.map((comment) => (
-                  <div key={comment.id} className="bg-gray-50 rounded-2xl p-4 flex justify-between items-start">
+                  <div key={comment.id} className="bg-light/30 border border-light rounded-2xl p-4 flex justify-between items-start">
                     <div>
-                      <p className="font-bold text-gray-800">{comment.userName} <span className="text-sm font-normal text-gray-500">در {comment.experienceTitle}</span></p>
-                      <p className="text-gray-600 mt-2">{comment.comment}</p>
-                      {comment.reported && <span className="inline-block mt-2 px-2 py-1 bg-red-100 text-red-600 text-xs rounded">گزارش شده</span>}
+                      <p className="font-bold text-dark">{comment.userName} <span className="text-sm font-medium text-dark/50 px-2">در {comment.experienceTitle}</span></p>
+                      <p className="text-dark/70 mt-2 text-sm leading-relaxed">{comment.comment}</p>
+                      {comment.reported && <span className="inline-block mt-2 px-2 py-1 bg-complementary/10 text-complementary text-xs rounded font-medium">گزارش شده</span>}
                     </div>
-                    <button onClick={() => handleDeleteComment(comment.id)} className="p-2 bg-white text-red-500 rounded-xl shadow hover:bg-red-500 hover:text-white transition-colors">
+                    <button onClick={() => handleDeleteComment(comment.id)} className="p-2 bg-white text-complementary rounded-xl shadow-sm hover:bg-complementary hover:text-white transition-colors border border-light">
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 ))}
+                {comments.length === 0 && (
+                  <div className="text-center py-10 text-dark/50">نظری برای نمایش وجود ندارد</div>
+                )}
               </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

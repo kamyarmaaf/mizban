@@ -17,28 +17,27 @@ export default function LoginPage({ onNavigate, onClose }: LoginPageProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
 
     if (!username || !password) {
       setError('لطفا تمام فیلدها را پر کنید');
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
     const { error } = await signIn(username, password);
+    setLoading(false);
 
     if (error) {
       setError(error.message);
-      setLoading(false);
     } else {
       onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 py-8 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full animate-slide-up my-auto">
-        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 rounded-t-3xl p-8 text-center">
+    <div className="fixed inset-0 bg-dark/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 py-8 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full animate-slide-up my-auto border border-dark/10">
+        <div className="relative bg-gradient-to-br from-primary to-primary/80 rounded-t-3xl p-8 text-center">
           <button
             onClick={onClose}
             className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
@@ -49,47 +48,46 @@ export default function LoginPage({ onNavigate, onClose }: LoginPageProps) {
             <LogIn className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-black text-white mb-2">ورود به میزبان</h2>
-          <p className="text-emerald-50">به جامعه میزبان‌ها خوش آمدید</p>
+          <p className="text-white/80">به جامعه میزبان‌ها خوش آمدید</p>
         </div>
 
         <div className="p-8">
-
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-sm font-medium text-center">
+            <div className="mb-6 p-4 bg-complementary/10 border border-complementary/20 rounded-xl text-complementary text-sm font-medium text-center">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
+              <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
                 نام کاربری
               </label>
               <div className="relative">
-                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="شماره موبایل"
-                  className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                  className="w-full pr-12 pl-4 py-4 border border-dark/10 bg-light/50 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                   disabled={loading}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
+              <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
                 رمز عبور
               </label>
               <div className="relative">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="رمز عبور خود را وارد کنید"
-                  className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                  className="w-full pr-12 pl-4 py-4 border border-dark/10 bg-light/50 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                   disabled={loading}
                 />
               </div>
@@ -98,20 +96,17 @@ export default function LoginPage({ onNavigate, onClose }: LoginPageProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-gradient-to-r from-primary to-primary/80 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-lg disabled:translate-y-0"
             >
               {loading ? 'در حال ورود...' : 'ورود'}
             </button>
 
-            <div className="mt-6 text-center border-t border-gray-200 pt-6">
-              <p className="text-gray-600 text-sm mb-3">حساب ندارید؟</p>
+            <div className="mt-6 text-center border-t border-dark/10 pt-6">
+              <p className="text-dark/60 text-sm mb-3">حساب ندارید؟</p>
               <button
                 type="button"
-                onClick={() => {
-//                   onClose();
-                  onNavigate('signup');
-                }}
-                className="w-full py-3 border-2 border-emerald-500 text-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all"
+                onClick={() => onNavigate('signup')}
+                className="w-full py-3 border-2 border-primary text-primary rounded-xl font-bold hover:bg-primary/10 transition-all"
               >
                 ثبت‌نام کنید
               </button>

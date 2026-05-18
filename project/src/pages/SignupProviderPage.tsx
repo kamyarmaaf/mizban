@@ -38,13 +38,12 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
     e.preventDefault();
     setError('');
 
-    if (!formData.fullName || !formData.phone || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('لطفا تمام فیلدهای اجباری را پر کنید');
-      return;
-    }
-
-    if (!formData.province || !formData.city || !formData.hostingType) {
-      setError('لطفا اطلاعات میزبانی خود را کامل کنید');
+    const requiredFields = [
+      'fullName', 'phone', 'email', 'password', 'confirmPassword',
+      'province', 'city', 'hostingType'
+    ];
+    if (requiredFields.some(field => !formData[field as keyof typeof formData])) {
+      setError('لطفا تمام فیلدهای ستاره‌دار را پر کنید');
       return;
     }
 
@@ -87,9 +86,10 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 py-8 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full animate-slide-up my-auto">
-        <div className="relative bg-gradient-to-br from-emerald-500 to-teal-500 rounded-t-3xl p-8 text-center">
+    <div className="fixed inset-0 bg-dark/50 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-luxury-lg max-w-2xl w-full animate-slide-up my-auto border border-dark/5">
+
+        <div className="relative bg-primary rounded-t-3xl p-8 text-center">
           <button
             onClick={onClose}
             className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
@@ -100,64 +100,66 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
             <UserPlus className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl font-black text-white mb-2">میزبان شو</h2>
-          <p className="text-emerald-50">به خانواده میزبان‌های میزبان بپیوند</p>
+          <p className="text-white/80">به خانواده میزبانان ما بپیوندید</p>
         </div>
 
         <div className="p-8">
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 text-sm font-medium text-center">
+            <div className="mb-6 p-4 bg-complementary/10 border border-complementary/20 rounded-xl text-complementary text-sm font-medium text-center">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+
+            {/* --- Personal Information --- */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                نام و نام خانوادگی
-              </label>
-              <div className="relative">
-                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="نام کامل خود را وارد کنید"
-                  className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
-                  disabled={loading}
-                />
-              </div>
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                    نام و نام خانوادگی <span className="text-complementary">*</span>
+                </label>
+                <div className="relative">
+                    <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
+                    <input
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    placeholder="نام کامل خود را وارد کنید"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
+                    disabled={loading}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                  شماره موبایل
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                  شماره موبایل <span className="text-complementary">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                   <input
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="09123456789"
-                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                     disabled={loading}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                  ایمیل
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                  ایمیل <span className="text-complementary">*</span>
                 </label>
                 <div className="relative">
-                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                   <input
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="example@email.com"
-                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-left transition-all"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-left transition-all"
                     disabled={loading}
                   />
                 </div>
@@ -166,54 +168,55 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                  رمز عبور
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                  رمز عبور <span className="text-complementary">*</span>
                 </label>
                 <div className="relative">
-                  <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                   <input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="حداقل 6 کاراکتر"
-                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                     disabled={loading}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                  تکرار رمز عبور
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                  تکرار رمز عبور <span className="text-complementary">*</span>
                 </label>
                 <div className="relative">
-                  <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                   <input
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                     placeholder="رمز عبور را دوباره وارد کنید"
-                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                     disabled={loading}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="border-t-2 border-gray-200 pt-6">
-              <h3 className="text-lg font-black text-gray-900 mb-4 text-right">اطلاعات میزبانی</h3>
+            {/* --- Hosting Information --- */}
+            <div className="border-t border-dark/10 pt-6 space-y-6">
+              <h3 className="text-lg font-black text-dark mb-0 text-right">اطلاعات میزبانی</h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                    استان اقامت
+                  <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                    استان اقامت <span className="text-complementary">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <MapPin className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                     <select
                       value={formData.province}
                       onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                      className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all appearance-none bg-white cursor-pointer"
+                      className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all appearance-none cursor-pointer"
                       disabled={loading}
                     >
                       <option value="">انتخاب کنید...</option>
@@ -225,17 +228,17 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                    شهر اقامت
+                  <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                    شهر اقامت <span className="text-complementary">*</span>
                   </label>
                   <div className="relative">
-                    <HomeIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <HomeIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                     <input
                       type="text"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                       placeholder="نام شهر"
-                      className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all"
+                      className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all"
                       disabled={loading}
                     />
                   </div>
@@ -243,15 +246,15 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-right">
-                  نوع میزبانی
+                <label className="block text-sm font-bold text-dark/70 mb-2 text-right">
+                  نوع میزبانی <span className="text-complementary">*</span>
                 </label>
                 <div className="relative">
-                  <Briefcase className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Briefcase className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark/40" />
                   <select
                     value={formData.hostingType}
                     onChange={(e) => setFormData({ ...formData, hostingType: e.target.value })}
-                    className="w-full pr-12 pl-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 text-right transition-all appearance-none bg-white cursor-pointer"
+                    className="w-full pr-12 pl-4 py-3 bg-light border border-dark/20 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary text-right transition-all appearance-none cursor-pointer"
                     disabled={loading}
                   >
                     <option value="">انتخاب کنید...</option>
@@ -263,8 +266,8 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
               </div>
             </div>
 
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-              <p className="text-sm text-blue-800 text-right leading-relaxed">
+            <div className="bg-secondary/10 border border-secondary/20 rounded-xl p-4">
+              <p className="text-sm text-secondary text-right leading-relaxed">
                 با ثبت نام به عنوان میزبان، می‌توانید تجربه‌های منحصربه‌فرد خود را با گردشگران به اشتراک بگذارید و درآمد کسب کنید.
               </p>
             </div>
@@ -272,18 +275,18 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold text-lg hover:from-emerald-600 hover:to-teal-600 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-primary text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed mt-6"
             >
-              {loading ? 'در حال ثبت نام...' : 'ثبت نام به عنوان میزبان'}
+              {loading ? 'در حال ارسال اطلاعات...' : 'ثبت نام به عنوان میزبان'}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
+          <div className="mt-6 text-center border-t border-dark/10 pt-6">
+            <p className="text-dark/60 text-sm">
               قبلا ثبت نام کرده‌اید؟{' '}
               <button
                 onClick={() => onNavigate('login')}
-                className="text-emerald-600 font-bold hover:text-emerald-700"
+                className="text-primary font-bold hover:text-primary/80 transition-colors"
               >
                 وارد شوید
               </button>
@@ -292,5 +295,3 @@ export default function SignupProviderPage({ onNavigate, onClose }: SignupProvid
         </div>
       </div>
     </div>
-  );
-}
