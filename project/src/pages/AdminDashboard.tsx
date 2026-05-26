@@ -52,7 +52,7 @@ interface Comment {
 
 export default function AdminDashboard() {
   const { user, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'providers' | 'experiences' | 'users' | 'comments'>('overview');
+  const [activeTab, setActiveTab] = useState<'providers' | 'experiences' | 'users' | 'comments'>('providers');
 
   const [pendingProviders, setPendingProviders] = useState<PendingProvider[]>([]);
   const [pendingExperiences, setPendingExperiences] = useState<PendingExperience[]>([]);
@@ -402,7 +402,6 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-3xl shadow-soft p-2 mb-8 border border-light">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x">
             {[
-              { id: 'overview', icon: BarChart3, label: 'خلاصه' },
               { id: 'providers', icon: UserCheck, label: `میزبان‌ها (${pendingProvidersCount})` },
               { id: 'experiences', icon: TrendingUp, label: `تجربه‌ها (${pendingExperiencesCount})` },
               { id: 'users', icon: Users, label: `کاربران (${totalUsers})` },
@@ -483,70 +482,6 @@ export default function AdminDashboard() {
         )}
 
         {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-3xl shadow-soft p-6 md:p-8 border border-light">
-              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
-                <div className="w-2 h-6 bg-primary rounded-full"></div>
-                فعالیت‌های اخیر
-              </h3>
-              <div className="space-y-4">
-                {pendingProviders.slice(0, 3).map(provider => (
-                  <div key={provider.id} className="group flex items-center gap-4 p-4 hover:bg-light rounded-2xl transition-colors border border-transparent hover:border-light">
-                    <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                      <UserCheck className="w-6 h-6 text-secondary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-dark truncate">{provider.fullName}</p>
-                      <p className="text-sm text-dark/60">درخواست میزبانی جدید</p>
-                    </div>
-                    <span className="text-xs font-medium text-dark/50 bg-light px-3 py-1 rounded-full whitespace-nowrap">{formatDate(provider.createdAt)}</span>
-                  </div>
-                ))}
-                {pendingProviders.length === 0 && <p className="text-dark/50 text-sm">موردی یافت نشد.</p>}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-3xl shadow-soft p-6 md:p-8 border border-light">
-              <h3 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
-                <div className="w-2 h-6 bg-secondary rounded-full"></div>
-                آمار سریع
-              </h3>
-              <div className="space-y-8">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-bold text-dark/70">میزبان‌های تایید شده</span>
-                    <span className="text-sm font-bold text-secondary">
-                      {pendingProviders.length > 0 ? Math.round((pendingProviders.filter(p => p.status === 'approved').length / pendingProviders.length) * 100) : 0}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-light rounded-full h-3 overflow-hidden">
-                    <div
-                      className="bg-secondary h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${pendingProviders.length > 0 ? (pendingProviders.filter(p => p.status === 'approved').length / pendingProviders.length) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-bold text-dark/70">تجربه‌های تایید شده</span>
-                    <span className="text-sm font-bold text-primary">
-                      {pendingExperiences.length > 0 ? Math.round((pendingExperiences.filter(e => e.status === 'approved').length / pendingExperiences.length) * 100) : 0}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-light rounded-full h-3 overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all duration-1000"
-                      style={{ width: `${pendingExperiences.length > 0 ? (pendingExperiences.filter(e => e.status === 'approved').length / pendingExperiences.length) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {activeTab === 'providers' && (
           <div className="bg-white rounded-3xl shadow-soft overflow-hidden border border-light">
             <div className="p-6 md:p-8 border-b border-light bg-light/30">
@@ -595,7 +530,7 @@ export default function AdminDashboard() {
                       </div>
                       {provider.status === 'pending' && (
                         <div className="flex gap-3 mt-4" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => handleProviderAction(provider.id, 'approve')} className="flex-1 py-2.5 bg-secondary text-white hover:opacity-90 rounded-xl font-bold transition-opacity flex justify-center items-center gap-2">تایید</button>
+                          <button onClick={() => handleProviderAction(provider.id, 'approve')} className="flex-1 py-2.5 bg-primary text-white hover:opacity-90 rounded-xl font-bold transition-opacity flex justify-center items-center gap-2">تایید</button>
                           <button onClick={() => handleProviderAction(provider.id, 'reject')} className="flex-1 py-2.5 bg-complementary text-white hover:opacity-90 rounded-xl font-bold transition-opacity flex justify-center items-center gap-2">رد</button>
                         </div>
                       )}

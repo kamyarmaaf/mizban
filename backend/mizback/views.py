@@ -6,8 +6,11 @@ from rest_framework import generics, permissions, status
 from .models import Experience, ExperienceImage, ExperienceRatingModel, ExperienceComment, Booking
 from .serializers import (ExperienceSerializer, ExperienceImageSerializer,
                           ExperienceListSerializer, ExperienceRatingSerializer, ExperienceCommentSerializer,
-                          BookingSerializer)
+                          BookingSerializer, TouristBookingSerializer, ProviderBookingSerializer,
+                          AdminCommentSerializer)
 from rest_framework.views import APIView
+from django.db import transaction
+from django.db.models import F
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -15,7 +18,7 @@ import json
 import requests
 
 # اطلاعات زرین‌پال (این مقدار را ترجیحا در settings.py قرار دهید و از آنجا بخوانید)
-MERCHANT_ID = "YOUR-ZARINPAL-MERCHANT-ID" # 36 کاراکتر مرچنت کد شما
+MERCHANT_ID = "f90ea9ea-eb40-4914-abc3-ac7f2800a9a7" # 36 کاراکتر مرچنت کد شما
 ZP_API_REQUEST = "https://api.zarinpal.com/pg/v4/payment/request.json"
 ZP_API_VERIFY = "https://api.zarinpal.com/pg/v4/payment/verify.json"
 ZP_API_STARTPAY = "https://www.zarinpal.com/pg/StartPay/{authority}"
@@ -38,19 +41,19 @@ class ExperienceCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        if getattr(request.user, 'status', None) != 'approved':
+            return Response(
+                {"message": "حساب کاربری شما به عنوان میزبان هنوز تایید نشده است. اجازه ساخت تجربه جدید را ندارید."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         print(request.data)
         serializer = ExperienceSerializer(data=request.data)
 
         if serializer.is_valid():
-            # ۱. ذخیره خود تجربه
             experience = serializer.save(provider=request.user)
-
-            # ۲. دریافت لیست عکس‌ها از فایل‌های ارسالی (همان فیلد images در فرانت)
             images = request.FILES.getlist('images')
-
-            # ۳. ذخیره هر عکس در مدل ExperienceImage
             for index, img in enumerate(images):
-                # اگر index صفر باشد (اولین عکس)، is_cover برابر True می‌شود، در غیر این صورت False
                 is_cover = (index == 0)
                 ExperienceImage.objects.create(experience=experience, image=img, is_cover=is_cover)
 
@@ -88,8 +91,6 @@ class ExperienceImageUploadAPIView(APIView):
                 {"error": "experience not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-
-        # فقط صاحب تجربه اجازه آپلود دارد
         if experience.provider != request.user:
             return Response(
                 {"error": "you are not allowed to upload image for this experience"},
@@ -99,10 +100,7 @@ class ExperienceImageUploadAPIView(APIView):
         serializer = ExperienceImageSerializer(data=request.data)
 
         if serializer.is_valid():
-            # بررسی اینکه آیا تجربه از قبل عکسی دارد یا خیر
             has_images = ExperienceImage.objects.filter(experience=experience).exists()
-
-            # اگر عکسی نداشت (اولین عکس است)، آن را کاور می‌کنیم
             serializer.save(experience=experience, is_cover=not has_images)
 
             return Response(
@@ -129,7 +127,6 @@ class ExperienceUpdateView(APIView):
         return self.update_experience(request, pk)
 
     def update_experience(self, request, pk):
-        # 1) پیداکردن تجربه
         try:
             experience = Experience.objects.get(pk=pk)
         except Experience.DoesNotExist:
@@ -137,15 +134,11 @@ class ExperienceUpdateView(APIView):
                 {"error": "Experience not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-
-        # 2) فقط صاحب تجربه اجازه ویرایش دارد
         if experience.provider != request.user:
             return Response(
                 {"error": "You are not allowed to edit this experience"},
                 status=status.HTTP_403_FORBIDDEN
             )
-
-        # Serializer آپدیت
         serializer = ExperienceSerializer(
             experience,
             data=request.data,
@@ -414,7 +407,7 @@ class AdminUserListView(APIView):
 class AdminCommentListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly]
     queryset = ExperienceComment.objects.all().order_by('-created_at')
-    serializer_class = ExperienceCommentSerializer
+    serializer_class = AdminCommentSerializer
 
 class AdminCommentDeleteView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminUserOrReadOnly]
@@ -464,38 +457,41 @@ def request_payment(request):
             experience=experience,
             guests=guests,
             total_price=total_price,
-            status='pending'
+            status='paid'
         )
+        booking.save()
+        return Response({'message': 'رزرو با موفقیت ثبت شد (بدون درگاه)'}, status=status.HTTP_201_CREATED)
 
         # ۲. ارسال درخواست به زرین‌پال
         # زرین‌پال مبالغ را به ریال دریافت می‌کند. اگر total_price تومان است آن را * 10 کنید
-        req_data = {
-            "merchant_id": MERCHANT_ID,
-            "amount": int(total_price) * 10,  # تبدیل به ریال
-            "callback_url": callback_url,
-            "description": f"رزرو تجربه {experience.title} برای {guests} نفر",
-            "metadata": {"mobile": request.user.phone_number if hasattr(request.user, 'phone_number') else ""}
-        }
+        # req_data = {
+        #     "merchant_id": MERCHANT_ID,
+        #     "amount": int(total_price) * 10,  # تبدیل به ریال
+        #     "callback_url": callback_url,
+        #     "description": f"رزرو تجربه {experience.title} برای {guests} نفر",
+        #     "metadata": {"mobile": request.user.phone_number if hasattr(request.user, 'phone_number') else ""}
+        # }
+        #
+        # response = requests.post(ZP_API_REQUEST, data=json.dumps(req_data),
+        #                          headers={'content-type': 'application/json'})
+        # result = response.json()
 
-        response = requests.post(ZP_API_REQUEST, data=json.dumps(req_data),
-                                 headers={'content-type': 'application/json'})
-        result = response.json()
-
-        if len(result['errors']) == 0:
-            authority = result['data']['authority']
-
-            # ۳. ذخیره Authority در دیتابیس برای پیگیری بعدی
-            booking.authority = authority
-            booking.save()
-
-            # ۴. ارسال لینک پرداخت به فرانت‌اند
-            payment_url = ZP_API_STARTPAY.format(authority=authority)
-            return Response({'payment_url': payment_url}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'خطا در ساخت تراکنش'}, status=status.HTTP_400_BAD_REQUEST)
-
+    #     if len(result['errors']) == 0:
+    #         authority = result['data']['authority']
+    #
+    #         # ۳. ذخیره Authority در دیتابیس برای پیگیری بعدی
+    #         booking.authority = authority
+    #         booking.save()
+    #
+    #         # ۴. ارسال لینک پرداخت به فرانت‌اند
+    #         payment_url = ZP_API_STARTPAY.format(authority=authority)
+    #         return Response({'payment_url': payment_url}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({'error': 'خطا در ساخت تراکنش'}, status=status.HTTP_400_BAD_REQUEST)
+    #
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(['GET'])
@@ -539,3 +535,39 @@ def verify_payment(request):
         booking.status = 'failed'
         booking.save()
         return Response({'error': 'تراکنش یافت نشد یا خطا از سمت درگاه.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# رزرو های من
+class MyBookingsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        bookings = Booking.objects.filter(
+            user=request.user
+        ).select_related('experience').prefetch_related('experience__images').order_by('-created_at')
+
+        serializer = TouristBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+
+
+class ProviderBookingsListView(generics.ListAPIView):
+    serializer_class = ProviderBookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Booking.objects.filter(experience__provider=self.request.user).order_by('-created_at')
+
+
+# class AdminCommentListView(generics.ListAPIView):
+#     queryset = ExperienceComment.objects.all().order_by('-created_at')
+#     serializer_class = AdminCommentSerializer
+#     permission_classes = [IsAdminUser]
+#
+# class AdminCommentDetailView(generics.DestroyAPIView):
+#     """حذف نظرات توسط مدیر"""
+#     queryset = ExperienceComment.objects.all()
+#     # اینجا چون ادمین است، هر نظری را بخواهد می‌تواند حذف کند و نیازی به چک کردن نویسنده نیست
+#     permission_classes = [IsAdminUser]

@@ -20,10 +20,47 @@ interface Experience {
 export default function ProviderDashboard({ onNavigate }: Props) {
   const [myExperiences, setMyExperiences] = useState<Experience[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [providerBookings, setProviderBookings] = useState<any[]>([]);
+  const [isLoadingBookings, setIsLoadingBookings] = useState(true);
 
-  // =======================================================
-  // وضعیت تجربه (draft, pending, approved, rejected)
-  // =======================================================
+
+  useEffect(() => {
+    const fetchProviderBookings = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          setIsLoadingBookings(false);
+          return;
+        }
+
+        const response = await fetch('http://127.0.0.1:8000/api/bookings/provider/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // بررسی می‌کنیم که دیتا آرایه است یا داخل results
+          const bookingsArray = Array.isArray(data) ? data : (data.results || []);
+          setProviderBookings(bookingsArray);
+          console.log("دیتای رزروها:", bookingsArray);
+        } else {
+          console.error('خطا در دریافت رزروهای میزبان');
+        }
+      } catch (error) {
+        console.error('خطای شبکه در دریافت رزروها:', error);
+      } finally {
+        setIsLoadingBookings(false);
+      }
+    };
+
+
+    fetchProviderBookings();
+  }, []);
+
   const getExperienceStatusBadge = (status: string) => {
     const styles = {
       draft: "bg-dark/70 backdrop-blur-sm",
@@ -108,15 +145,15 @@ export default function ProviderDashboard({ onNavigate }: Props) {
   // ========================================================
   const getStatusBadge = (status: string) => {
     const styles = {
-      confirmed: 'bg-primary/10 text-primary border border-primary/20',
+      paid: 'bg-primary/10 text-primary border border-primary/20',
       pending: 'bg-secondary/10 text-secondary border border-secondary/20',
-      completed: 'bg-dark/10 text-dark border border-dark/20'
+      failed: 'bg-dark/10 text-dark border border-dark/20'
     };
 
     const labels = {
-      confirmed: 'تایید شده',
+      paid: 'پرداخت شده',
       pending: 'در انتظار',
-      completed: 'تکمیل شده'
+      failed: 'ناموفق'
     };
 
     return (
@@ -187,15 +224,16 @@ export default function ProviderDashboard({ onNavigate }: Props) {
             <p className="text-3xl font-bold text-dark">{isLoading ? '...' : myExperiences.length}</p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-soft border border-light hover:-translate-y-1 transition-transform duration-300">
+                    <div className="bg-white rounded-3xl p-6 shadow-soft border border-light hover:-translate-y-1 transition-transform duration-300">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-dark/70 font-medium">رزروهای فعال</h3>
               <div className="p-3 bg-secondary/10 rounded-2xl">
                 <Calendar className="w-6 h-6 text-secondary" />
               </div>
             </div>
+            {/* محاسبه رزروهای فعال (تایید شده یا در انتظار) */}
             <p className="text-3xl font-bold text-dark">
-              {mockProviderBookings.filter(b => b.status !== 'completed').length}
+              {isLoadingBookings ? '...' : providerBookings.filter(b => b.status !== 'completed' && b.status !== 'cancelled').length}
             </p>
           </div>
 
@@ -206,8 +244,10 @@ export default function ProviderDashboard({ onNavigate }: Props) {
                 <User className="w-6 h-6 text-complementary" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-dark">{mockProviderBookings.length}</p>
+            {/* تعداد کل رزروها یا می‌توانید تعداد صندلی‌های رزرو شده (seats) را جمع بزنید */}
+            <p className="text-3xl font-bold text-dark">{isLoadingBookings ? '...' : providerBookings.length}</p>
           </div>
+
         </div>
 
         {/* My Experiences */}
@@ -324,29 +364,47 @@ export default function ProviderDashboard({ onNavigate }: Props) {
               </thead>
 
               <tbody className="divide-y divide-light/50">
-                {mockProviderBookings.map((booking) => (
-                  <tr key={booking.id} className="hover:bg-light/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
-                        <img
-                          src={booking.experienceImage}
-                          className="w-14 h-14 rounded-xl object-cover shadow-sm"
-                          alt="تایم‌نیل تجربه"
-                        />
-                        <span className="font-bold text-dark">{booking.experienceTitle}</span>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 font-medium text-dark/80">{booking.guestName}</td>
-                    <td className="px-6 py-4 text-dark/60 text-sm">{booking.date}</td>
-
-                    <td className="px-6 py-4 font-bold text-dark">
-                      {booking.price.toLocaleString('fa-IR')} <span className="text-xs font-normal text-dark/50">تومان</span>
-                    </td>
-
-                    <td className="px-6 py-4">{getStatusBadge(booking.status)}</td>
+                {isLoadingBookings ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-dark/50">در حال دریافت رزروها...</td>
                   </tr>
-                ))}
+                ) : providerBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-dark/50 font-medium">هنوز کسی تجربه‌های شما را رزرو نکرده است.</td>
+                  </tr>
+                ) : (
+                  providerBookings.map((booking) => (
+                    <tr key={booking.id} className="hover:bg-light/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          {/* توجه: مسیر عکس را با توجه به ساختار دیتای بک‌اند خود تنظیم کنید */}
+                          <img
+                            src={booking.experience?.image || 'https://via.placeholder.com/150?text=تصویر'}
+                            className="w-14 h-14 rounded-xl object-cover shadow-sm"
+                            alt="تایم‌نیل تجربه"
+                          />
+                          <span className="font-bold text-dark">{booking.experience?.title || 'نامشخص'}</span>
+                        </div>
+                      </td>
+
+                      {/* نام کاربری مهمان را از دیتای بک‌اند می‌گیریم */}
+                      <td className="px-6 py-4 font-medium text-dark/80">
+                        {booking.user?.first_name ? `${booking.user.first_name} ${booking.user.last_name}` : booking.user?.username || 'کاربر'}
+                      </td>
+
+                      {/* تاریخ رزرو */}
+                      <td className="px-6 py-4 text-dark/60 text-sm">
+                        {new Date(booking.created_at || booking.date).toLocaleDateString('fa-IR')}
+                      </td>
+
+                      <td className="px-6 py-4 font-bold text-dark">
+                        {Number(booking.total_price || booking.price).toLocaleString('fa-IR')} <span className="text-xs font-normal text-dark/50">تومان</span>
+                      </td>
+
+                      <td className="px-6 py-4">{getStatusBadge(booking.status || 'pending')}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

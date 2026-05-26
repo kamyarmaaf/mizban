@@ -29,11 +29,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ data, user, onNavigate }) =
       setLoading(true);
       setError('');
       // ارسال درخواست به بک‌اند
-      const response = await fetch('http://your-api-url/api/bookings/request-payment/', {
+      const response = await fetch('http://127.0.0.1:8000/api/bookings/request-payment/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         },
         body: JSON.stringify({
           experience: data.experienceId,
@@ -57,6 +57,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ data, user, onNavigate }) =
       setLoading(false);
     }
   };
+
+
 
   // اگر پرداخت موفق بود
   if (success) {

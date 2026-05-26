@@ -12,9 +12,12 @@ interface ExperienceCardProps {
 export default function ExperienceCard({ experience, onViewDetails }: ExperienceCardProps) {
   const [isLiked, setIsLiked] = useState(experience.is_favorited || false);
   const [isLiking, setIsLiking] = useState(false);
+
   const persianDate = dayjs(experience.date)
     .calendar("jalali")
     .format("YYYY/MM/DD");
+
+  const isFull = experience.capacity <= 0;
 
   const handleLikeClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -37,9 +40,7 @@ export default function ExperienceCard({ experience, onViewDetails }: Experience
       });
 
       if (response.ok) {
-        setIsLiked(prevIsLiked => !prevIsLiked);
-      } else {
-        console.error('Failed to update favorite status');
+        setIsLiked(prev => !prev);
       }
     } catch (error) {
       console.error('Error liking experience:', error);
@@ -50,16 +51,24 @@ export default function ExperienceCard({ experience, onViewDetails }: Experience
 
   return (
     <div className="group h-full bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-luxury hover:shadow-luxury-lg transition-all duration-500 hover:-translate-y-2 border border-gray-100 flex flex-col">
-      {/* تغییر ارتفاع عکس برای موبایل و دسکتاپ */}
-      <div className="relative h-36 sm:h-48 md:h-56 shrink-0 overflow-hidden cursor-pointer" onClick={() => onViewDetails(experience.id)}>
+
+      {/* بخش عکس */}
+      <div
+        className="relative h-36 sm:h-48 md:h-56 shrink-0 overflow-hidden cursor-pointer"
+        onClick={() => !isFull && onViewDetails(experience.id)}
+      >
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
+        {/* عکس تجربه */}
         <img
           src={experience.image}
           alt={experience.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          className={`w-full h-full object-cover transition-transform duration-700 ${
+            isFull ? "grayscale opacity-70" : "group-hover:scale-110"
+          }`}
         />
 
+        {/* دکمه قلب */}
         <button
           onClick={handleLikeClick}
           disabled={isLiking}
@@ -68,16 +77,27 @@ export default function ExperienceCard({ experience, onViewDetails }: Experience
           <Heart className={`w-4 h-4 md:w-5 md:h-5 transition-all ${isLiked ? 'fill-complementary text-complementary scale-110' : 'text-dark/60'}`} />
         </button>
 
+        {/* نمایش دسته‌بندی */}
         <div className="absolute top-2 right-2 md:top-4 md:right-4 px-2 py-1 md:px-4 md:py-2 glass-effect rounded-full text-[10px] md:text-sm font-bold text-dark z-20 shadow-md">
           {experience.category}
         </div>
+
+        {/* نشانگر تکمیل ظرفیت */}
+        {isFull && (
+          <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-red-600 text-white px-3 py-1 text-xs md:text-sm rounded-full z-20 shadow-xl font-bold">
+            تکمیل ظرفیت
+          </div>
+        )}
       </div>
 
-      {/* کاهش پدینگ در موبایل */}
+      {/* بخش توضیحات */}
       <div className="p-3 sm:p-4 md:p-6 flex flex-col flex-grow">
-       <h3
-          className="font-bold md:font-black text-sm sm:text-base md:text-xl mb-1.5 md:mb-3 line-clamp-1 cursor-pointer text-dark group-hover:text-primary transition-colors min-h-[28px]"
-          onClick={() => onViewDetails(experience.id)}
+
+        <h3
+          className={`font-bold md:font-black text-sm sm:text-base md:text-xl mb-1.5 md:mb-3 line-clamp-1 cursor-pointer min-h-[28px] ${
+            isFull ? "text-dark/40" : "text-dark group-hover:text-primary"
+          } transition-colors`}
+          onClick={() => !isFull && onViewDetails(experience.id)}
         >
           {experience.title}
         </h3>
@@ -86,7 +106,6 @@ export default function ExperienceCard({ experience, onViewDetails }: Experience
           {experience.description}
         </p>
 
-
         {experience.rating && (
           <div className="mb-3 md:mb-4">
             <StarRating rating={experience.rating} totalRatings={experience.totalRatings} size="sm" />
@@ -94,37 +113,46 @@ export default function ExperienceCard({ experience, onViewDetails }: Experience
         )}
 
         <div className="space-y-1.5 md:space-y-2 mb-3 md:mb-5 mt-auto">
-          <div className="flex items-center gap-1.5 md:gap-2 text-dark/60 text-xs md:text-sm bg-light rounded-lg md:rounded-xl px-2 py-1.5 md:px-3 md:py-2">
-            <MapPin className="w-3 h-3 md:w-4 md:h-4 text-primary shrink-0" />
+          <div className="flex items-center gap-1.5 md:gap-2 text-dark/60 text-xs md:text-sm bg-light rounded-lg px-2 py-1.5 md:px-3 md:py-2">
+            <MapPin className="w-3 h-3 md:w-4 md:h-4 text-primary" />
             <span className="font-medium truncate">{experience.province}، {experience.city}</span>
           </div>
+
           <div className="flex items-center gap-1.5 md:gap-3">
-            <div className="flex items-center justify-center gap-1 text-dark/70 bg-light rounded-md md:rounded-lg px-1.5 py-1 md:px-2.5 md:py-1.5 flex-1 truncate">
-              <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary shrink-0" />
-              <span className="font-medium text-[10px] md:text-xs truncate">{persianDate}</span>
+            <div className="flex items-center justify-center gap-1 text-dark/70 bg-light rounded-lg px-1.5 py-1 md:px-2.5 md:py-1.5 flex-1 truncate">
+              <Calendar className="w-3 h-3 text-primary" />
+              <span className="text-xs truncate">{persianDate}</span>
             </div>
-            <div className="flex items-center justify-center gap-1 text-dark/70 bg-light rounded-md md:rounded-lg px-1.5 py-1 md:px-2.5 md:py-1.5 flex-1 truncate">
-              <Clock className="w-3 h-3 md:w-3.5 md:h-3.5 text-complementary shrink-0" />
-              <span className="font-medium text-[10px] md:text-xs truncate">{experience.time}</span>
+
+            <div className="flex items-center justify-center gap-1 text-dark/70 bg-light rounded-lg px-1.5 py-1 md:px-2.5 md:py-1.5 flex-1 truncate">
+              <Clock className="w-3 h-3 text-complementary" />
+              <span className="text-xs truncate">{experience.time}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-wrap sm:flex-nowrap items-end justify-between gap-2 pt-3 md:pt-4 border-t border-gray-100">
+        {/* قیمت و دکمه */}
+        <div className="flex flex-wrap items-end justify-between gap-2 pt-3 md:pt-4 border-t border-gray-100">
           <div className="flex flex-col">
-            <span className="text-base sm:text-xl md:text-3xl font-black text-dark leading-none">
+            <span className={`text-base sm:text-xl md:text-3xl font-black ${isFull ? "text-dark/40" : "text-dark"}`}>
               {experience.price.toLocaleString('fa-IR')}
             </span>
-            <span className="text-[10px] md:text-sm font-medium text-dark/60 mt-0.5 md:mt-1">تومان / نفر</span>
+            <span className="text-[10px] md:text-sm font-medium text-dark/60 mt-1">تومان / نفر</span>
           </div>
 
           <button
+            disabled={isFull}
             onClick={() => onViewDetails(experience.id)}
-            className="px-3 py-1.5 md:px-5 md:py-3 bg-primary text-white rounded-lg md:rounded-xl text-[11px] md:text-sm font-bold hover:bg-primary/90 transition-all hover:shadow-lg hover:scale-105 active:scale-95"
+            className={`px-3 py-1.5 md:px-5 md:py-3 rounded-lg md:rounded-xl text-[11px] md:text-sm font-bold transition-all ${
+              isFull
+                ? "bg-dark/10 text-dark/40 cursor-not-allowed"
+                : "bg-primary text-white hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95"
+            }`}
           >
-            مشاهده
+            {isFull ? "تکمیل ظرفیت" : "مشاهده"}
           </button>
         </div>
+
       </div>
     </div>
   );

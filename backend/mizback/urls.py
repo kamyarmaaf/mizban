@@ -8,7 +8,8 @@ from .views import (ExperienceListView, ExperienceDetailView,
                     CommentDeleteView, ProviderStatsView,
                     ExperienceDeleteView, AdminExperienceListView,
                     AdminExperienceStatusUpdateView, AdminUserListView, AdminCommentListView, AdminCommentDeleteView,
-                    AllExperienceAPIView, BookingCreateAPIView, request_payment, verify_payment, )
+                    AllExperienceAPIView, BookingCreateAPIView, request_payment, verify_payment, MyBookingsAPIView,
+                    ProviderBookingsListView, )
 
 
 urlpatterns = [
@@ -36,4 +37,6 @@ urlpatterns = [
     path('bookings/', BookingCreateAPIView.as_view(), name='create_booking'),
     path('bookings/request-payment/', request_payment, name='request_payment'),
     path('bookings/verify-payment/', verify_payment, name='verify_payment'),
+    path('bookings/my/', MyBookingsAPIView.as_view(), name='my-bookings'),
+    path('bookings/provider/', ProviderBookingsListView.as_view(), name='provider-bookings'),
 ]

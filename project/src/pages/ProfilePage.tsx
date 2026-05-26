@@ -44,12 +44,18 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
     total_ratings_count: 0
   });
 
+  // NEW: State برای ذخیره تعداد رزروهای فعال
+  const [activeBookingsCount, setActiveBookingsCount] = useState(0);
+  const [savedCount, setSavedCount] = useState(0);
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
       loadUserProfile();
+      loadMyBookings(); // فراخوانی تابع دریافت رزروها
+      loadFavorites(); //  فراخوانی تابع دریافت علاقه‌مندی‌ها
     }
   }, [user]);
 
@@ -58,6 +64,49 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
       loadProviderStats();
     }
   }, [userProfile?.user_type]);
+
+  const loadFavorites = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      // توجه: اگر پیشوند URL شما متفاوت است، این آدرس را اصلاح کنید
+      const res = await fetch("http://127.0.0.1:8000/api/favorites/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // اگر در بک‌اند pagination فعال باشد، تعداد در data.count است، در غیر این صورت در data.length
+        const count = data.count !== undefined ? data.count : data.length;
+        setSavedCount(count || 0);
+      }
+    } catch (err) {
+      console.error("Favorites load error", err);
+    }
+  };
+
+
+  // NEW: تابع دریافت رزروهای من از بک‌اند
+  const loadMyBookings = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch("http://127.0.0.1:8000/api/bookings/my/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // در اینجا تعداد کل رزروهای برگردانده شده را به عنوان رزرو فعال در نظر می‌گیریم
+        // اگر در بک‌اند وضعیت خاصی مدنظر است (مثل status='paid') می‌توانید داده‌ها را فیلتر کنید
+        setActiveBookingsCount(data.length);
+      }
+    } catch (err) {
+      console.error("Bookings load error", err);
+    }
+  };
 
   const loadUserProfile = async () => {
     if (!user) return;
@@ -196,7 +245,6 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
 
   return (
     <div className="min-h-screen bg-light pb-12">
-      {/* هدر صفحه با رنگ primary یکدست */}
       <div className="bg-primary pt-12 pb-24 px-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <h1 className="text-3xl font-black text-white tracking-tight">پروفایل کاربری</h1>
@@ -207,7 +255,6 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
       </div>
 
       <div className="max-w-5xl mx-auto px-4 -mt-16">
-        {/* پیام‌های وضعیت میزبان */}
         {isProvider && (
           <div className="mb-6 space-y-4 relative z-10">
             {provider.status === 'pending' && (
@@ -233,7 +280,6 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* سایدبار */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl shadow-soft border border-light p-6 text-center relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-24 bg-primary/5"></div>
@@ -269,9 +315,7 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
             </div>
           </div>
 
-          {/* محتوای اصلی */}
           <div className="lg:col-span-2 space-y-6">
-            {/* کارت اطلاعات پایه */}
             <div className="bg-white rounded-3xl shadow-soft border border-light overflow-hidden">
               <div className="px-8 py-5 border-b border-light flex justify-between items-center bg-light/30">
                 <h3 className="text-lg font-bold text-dark flex items-center gap-2">
@@ -320,7 +364,6 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
               </div>
             </div>
 
-            {/* کارت اطلاعات میزبانی */}
             {isProvider && (
               <div className="bg-white rounded-3xl shadow-soft border border-light overflow-hidden">
                 <div className="px-8 py-5 border-b border-light flex justify-between items-center bg-primary/5">
@@ -377,7 +420,6 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
               </div>
             )}
 
-            {/* کارت آمار و فعالیت‌ها */}
             <div className="bg-white rounded-3xl shadow-soft border border-light overflow-hidden">
               <div className="px-8 py-5 border-b border-light bg-light/30">
                 <h3 className="text-lg font-bold text-dark flex items-center gap-2">
@@ -386,17 +428,17 @@ export default function ProfilePage({ onNavigate }: { onNavigate: (page: string)
               </div>
               <div className="p-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                  {/* رنگ‌بندی جدید بر اساس primary, secondary, dark */}
                   <div className="p-5 rounded-2xl bg-primary/10 border border-primary/20 text-center">
                     <p className="text-3xl font-black text-primary mb-1">42</p>
                     <p className="text-sm font-medium text-primary/80">بازدیدها</p>
                   </div>
                   <div className="p-5 rounded-2xl bg-secondary/10 border border-secondary/20 text-center">
-                    <p className="text-3xl font-black text-secondary mb-1">8</p>
+                    <p className="text-3xl font-black text-secondary mb-1">{savedCount}</p>
                     <p className="text-sm font-medium text-secondary/80">ذخیره شده</p>
                   </div>
                   <div className="p-5 rounded-2xl bg-dark/10 border border-dark/20 text-center col-span-2 md:col-span-1">
-                    <p className="text-3xl font-black text-dark mb-1">3</p>
+                    {/* NEW: جایگزینی عدد هاردکد با استیت */}
+                    <p className="text-3xl font-black text-dark mb-1">{activeBookingsCount}</p>
                     <p className="text-sm font-medium text-dark/80">رزرو فعال</p>
                   </div>
                 </div>
